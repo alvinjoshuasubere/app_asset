@@ -1,0 +1,168 @@
+.row__details{
+  // margin-bottom: .5rem;
+  margin: 0 !important;
+  padding: .5rem;
+  border-radius: 10px;
+  box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}
+
+.weightDetails {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-inline: .3rem;
+  border-radius: 10px;
+  flex-grow: 1;
+  // background: turquoise;
+  h6{
+    color: var(--darkGreen);
+    margin: none !important;
+    padding: none !important;
+    line-height: .8rem;
+  }
+  .weightDetails__container{
+    margin-inline: .2rem;
+    background: #fff;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px solid rgba(211, 211, 211, 0.289);
+    flex-grow: 1;
+    padding: .5rem 0 .3rem;
+    max-width: 100%;
+  }
+}
+.weightDetails__data{
+  font-size: 11px;
+  // color: var(--gray-light);
+  font-style: italic;
+  font-weight: 500;
+}
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+}
+
+.mediumTable {
+  width: 70%;
+  min-width: 300px !important;
+  // cursor: pointer;
+  // text-align: center;
+  // td {
+  // }
+  // td:first-child {
+  //   text-align: left;
+  //   margin-left: 100px !important;
+  // }
+}
+.printableTable {
+  tbody {
+    tr {
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}
+.limitedHTable{
+  max-height: 700px !important;
+  overflow-x: hidden;
+}
+
+thead {
+  &:hover {
+    // cursor: pointer;
+    background-color: transparent;
+  }
+}
+
+tbody {
+  tr {
+    &:hover {
+      // cursor: pointer;
+      background-color: rgba(2, 104, 65, 0.055) !important;
+    }
+  }
+}
+
+.tableHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.tableContainer {
+  margin: 1rem 1rem;
+  width: 100%;
+  min-width: 180px;
+}
+
+.tabContent__tableContainer{
+  margin: 1rem 1rem 1rem 0;
+  width: 100%;
+  min-width: 180px;
+}
+
+
+/* Inline #6 | http://172.17.130.23:4004/request */
+
+.table.b-table > tbody > .table-active, .table.b-table > tbody > .table-active > th, .table.b-table > tbody > .table-active > td {
+  /* background-color: rgba(0, 0, 0, 0.075); */
+  background-color: #28a7462c;
+  background-color: rgba(121, 199, 65, 0.131);
+}
+
+tbody > tr:hover{
+  background-color: rgba(136, 199, 65, 0.131) !important;
+}
+
+.b-table-details{
+  background-color: rgba(136, 199, 65, 0.131) !important;
+}
+
+
+@media screen and (max-width: 1070px) {
+  .tableContainer {
+    margin: 1rem;
+    width: auto;
+  }
+}
+
+::-webkit-scrollbar {
+  width: .5rem;
+  /* width of the entire scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(158, 158, 158, 0.267);
+  border-radius: 20px;
+  /* color of the tracking area */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #696f7550;
+  /* color of the scroll thumb */
+  border-radius: 20px;
+  /* roundness of the scroll thumb */
+  border: 3px solid transparent;
+  /* creates padding around scroll thumb */
+}
+
+body {
+  scrollbar-width: thin;
+  /* "auto" or "thin" */
+  scrollbar-color: #aeaeae46 rgba(128, 128, 128, 0.267);
+  /* scroll thumb and track */
+}

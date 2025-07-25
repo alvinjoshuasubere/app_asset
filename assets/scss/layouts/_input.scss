@@ -1,0 +1,98 @@
+.input-group-sm>.form-control,
+.input-group-sm>.custom-select,
+.input-group-sm>.input-group-prepend>.input-group-text,
+.input-group-sm>.input-group-append>.input-group-text,
+.input-group-sm>.input-group-prepend>.btn,
+.input-group-sm>.input-group-append>.btn {
+  /* font-size: 0.875rem; */
+  font-size: 13px;
+  height: 2rem;
+}
+
+// .form-control.form-control-md, .custom-select.custom-select-md{
+//   height: 29.5px;
+// }
+
+.custom-select.custom-select-md{
+  padding-block: 0;
+}
+
+.form-control {
+  font-size: 13px;
+}
+
+.right {
+  position: absolute;
+  right: 20px;
+}
+
+.ranges.col-12.col-md-auto{
+  margin: 0 !important;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 1rem;
+  ul{
+    text-align: center;
+  }
+  li{
+    font-size: .8rem !important;
+    padding-inline: 1rem;
+    width: auto !important;
+    &:hover{
+      background: none;
+      color: var(--primary);
+      font-weight: bold;
+      border-radius: 4px;
+    }
+  }
+  li.active{
+    background: none;
+    color: var(--primary);
+    font-weight: bold;
+    border-radius: 4px;
+  }
+}
+
+.daterangepicker .calendar-table table {
+  display: flex;
+  flex-direction: column;
+  thead{
+    left: 32px;
+    position: relative;
+    color: var(--primary);
+  }
+  span{
+    color: var(--primary);
+    &:hover{
+      background: var(--transPrimary);
+    }
+  }
+}
+
+.daterangepicker .calendar-table .next span, .daterangepicker .calendar-table .prev span {
+  border: solid var(--primary) !important;
+  border-width: 0 2px 2px 0 !important;
+  &:hover{
+    border: solid var(--primary) !important;
+    border-width: 0 2px 2px 0 !important;
+  }
+}
+
+.daterangepicker td.in-range {
+  background-color: var(--primary) !important;
+  border-color: transparent !important;
+  color: var(--primary) !important;
+  border-radius: 4px;
+}
+
+/* Inline #14 | http://localhost:4004/report */
+.daterangepicker td.active, .daterangepicker td.active:hover {
+  background: $primary !important;
+  font-weight: bold;
+  color: #fff !important;
+}
+
+
+// td.today[data-v-64721b4e] {
+//   color: var(--green) !important;
+// }

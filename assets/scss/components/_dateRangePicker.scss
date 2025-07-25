@@ -1,0 +1,23 @@
+.date {
+  height: 2rem !important;
+  font-size: 13px;
+
+  .date__range {
+    min-width: 150px;
+    font-size: 13px;
+  }
+
+  .date__reset {
+    height: 2rem !important;
+  }
+}
+
+.form-control.reportrange-text {
+  height: 2rem;
+  font-size: 10px !important;
+  border-radius: 0 !important;
+}
+
+#date-reset {
+  height: 2rem;
+}

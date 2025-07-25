@@ -1,0 +1,32 @@
+.xspacer{
+  margin:0 .3rem;
+}
+.rspacer{
+  margin-right:.6rem;
+}
+.rspacer-2{
+  margin-right:1.2rem;
+}
+.lspacer{
+  margin-left:.6rem;
+}
+.fullscreen{
+  width:100vw;
+  height:100vh;
+}
+.grid-center{
+  display:grid;
+  place-items: center;
+}
+.flex-center{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-outline{
+  &:focus{
+    box-shadow: none !important;
+    border:1px solid #CCCCCC !important;
+  }
+}

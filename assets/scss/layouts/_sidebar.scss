@@ -20,6 +20,7 @@
   flex-direction: column !important;
   background: var(--transPrimary);
   color: #fff;
+  font-size: 12px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   // transition: all 0.3s;
   width: 15rem;
@@ -64,7 +65,7 @@
 }
 #sidebar ul li a:hover {
   color: black;
-  background: #fffe00;
+  background: #efefef;
   border-radius: 2px;
   cursor: pointer;
 }
@@ -72,31 +73,31 @@
 /* //*ANCHOR - Added this style to fix the active sidebar link */
 a.nuxt-link-active {
   color: black !important;
-  background: #fffe00;
+  background: #efefef;
   border-radius: 2px !important;
 }
 
 .sideBarDrpdown {
   &:focus {
     color: black;
-    background: #fffe00;
+    background: wh;
   }
   &:active {
     color: black !important;
-    background: #fffe00;
+    background: #efefef;
   }
   &:focus-within {
     color: black;
-    background: #fffe00;
+    background: #efefef;
   }
   &:hover {
-    background-color: #fffe00 !important;
+    background-color: #efefef !important;
     color: black;
   }
 }
 
 .adminDrpdown {
-  font-size: 15.6px;
+  font-size: 12px;
   color: inherit;
 }
 
@@ -123,7 +124,7 @@ a.nuxt-link-active {
 /* //!ANCHOR - This style is for highlighting the admin dashboard submenus */
 .adminSubMenusStyle {
   border-left-style: solid;
-  border-left-color: #fffe00;
+  border-left-color: #efefef;
   border-left-width: 2px;
   margin: 0 15px;
 
@@ -153,8 +154,8 @@ a.nuxt-link-active {
 
 .custom-control-input:checked ~ .custom-control-label::before {
   color: #fff;
-  border-color: #fffe00;
-  background-color: #fffe00;
+  border-color: #efefef;
+  background-color: #efefef;
   &:focus {
     box-shadow: transparent;
   }
@@ -174,7 +175,7 @@ a.nuxt-link-active {
   }
   .adminSubMenusStyle {
     border-left-style: solid;
-    border-left-color: #fffe00;
+    border-left-color: #efefef;
     border-left-width: 2px;
     margin: 0 3px;
   }

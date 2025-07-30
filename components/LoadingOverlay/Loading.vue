@@ -44,10 +44,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* -webkit-animation-name: fadeIn;
-  -webkit-animation-duration: 0.4s;
-  animation-name: fadeIn;
-  animation-duration: 0.4s; */
 }
 .bg {
   background: #ffffff4f;
@@ -61,7 +57,6 @@ body {
   width: 150px;
   height: 150px;
   animation: spin 1s linear infinite;
-
 }
 .load {
   border: 4px solid #ffffff00;

@@ -59,7 +59,7 @@ module.exports = {
    ** Build configuration
    */
   axios: {
-    baseURL: "http://192.168.0.26:7800/api",
+    baseURL: "http://192.168.0.26:5900/api",
   },
 
   build: {
@@ -74,7 +74,7 @@ module.exports = {
   },
 
   server: {
-    host: "192.168.0.109",
-    port: 1050,
+    host: "0.0.0.0",
+    port: 2000,
   },
 };

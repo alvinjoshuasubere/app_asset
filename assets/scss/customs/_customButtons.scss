@@ -1,9 +1,8 @@
-
-.newBtn{
-  font-size:12px;
-  color: #28A745;
+.newBtn {
+  font-size: 12px;
+  color: #28a745;
   width: fit-content;
-  &:hover{
+  &:hover {
     cursor: pointer;
   }
 }
@@ -19,6 +18,22 @@
   justify-content: flex-end;
   right: 0;
   bottom: 0;
+}
+.backBtn {
+  cursor: pointer;
+  border: 1px solid #191414;
+  background-color: transparent;
+  border: 0;
+  color: #191414;
+  padding: 5px;
+  &:active {
+    background-color: transparent;
+    color: black;
+  }
+  &:hover {
+    background-color: transparent;
+    color: black;
+  }
 }
 
 .primaryBtn {
@@ -58,8 +73,9 @@
 }
 .greyBtn {
   @include decentBtn();
-  background-color: var(--gray-dark);
-  border-color: var(--gray-dark);
+  background-color: transparent;
+  border-color: var(--transPrimary);
+  color: var(--transPrimary);
   &:hover {
     background-color: var(--hoverGray);
     border-color: var(--hoverGray);
@@ -118,12 +134,12 @@
   width: 28px !important;
   height: 28px !important;
   background-color: rgba(128, 128, 128, 0.515);
-  border-color: #BEBEBE;
+  border-color: #bebebe;
   border-style: solid;
   cursor: default;
   .disabledIcon {
-    position:relative;
-    left:-2px;
+    position: relative;
+    left: -2px;
     color: white;
   }
   &:focus {
@@ -134,8 +150,8 @@
   border-radius: 60% !important;
   width: 28px !important;
   height: 28px !important;
-  background-color: #4EA78F;
-  border-color: #4EA78F;
+  background-color: #4ea78f;
+  border-color: #4ea78f;
   border-style: solid;
   cursor: default;
   .disabledIcon {
@@ -149,8 +165,8 @@
   border-radius: 60% !important;
   width: 28px !important;
   height: 28px !important;
-  background-color: #36949B;
-  border-color: #36949B;
+  background-color: #36949b;
+  border-color: #36949b;
   border-style: solid;
   cursor: default;
   .disabledIcon {

@@ -3,11 +3,13 @@
     <div class="mt-3">
       <b-row>
         <b-col>
-          <nav class="breadcrumb-container ml-4">
-            <a href="#" class="breadcrumb-link">Home</a>
-            <span class="breadcrumb-separator">▶</span>
-            <span class="breadcrumb-current">Maintenance</span>
-          </nav>
+          <h5 class="ml-4 color1" style="font-weight: bolder">
+            <font-awesome-icon
+              icon="circle-info"
+              class="viewIcon mr-2"
+              small
+            />Manufacturers
+          </h5>
           <b-card class="cardProfile mainContent">
             <b-row>
               <b-col cols="6">
@@ -90,7 +92,7 @@
                   @click="$bvModal.show('bv-modal-create')"
                 >
                   <font-awesome-icon icon="circle-plus" class="icon" />
-                  New Maintenance
+                  Add New Manufacturer
                 </b-button>
               </b-col>
             </b-row>
@@ -225,44 +227,17 @@ export default {
       },
       fields: [
         {
-          key: "details",
-          label: "DETAILS",
+          key: "manufacturerName",
+          label: "MANUFACTURER NAME",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
+          thStyle: { width: "90%" },
+          tdStyle: { width: "90%" },
         },
-        {
-          key: "technician",
-          label: "TECHNICIAN",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-        {
-          key: "accountTitle",
-          label: "ACCOUNT",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-        {
-          key: "description",
-          label: "DESCRIPTION",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-        {
-          key: "resolved",
-          label: "RESOLVED",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-
         {
           key: "actions",
-          label: "",
+          label: "Actions",
           sortable: true,
           class: "text-center",
         },

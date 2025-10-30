@@ -3,11 +3,13 @@
     <div class="mt-3">
       <b-row>
         <b-col>
-          <nav class="breadcrumb-container ml-4">
-            <a href="#" class="breadcrumb-link">Home</a>
-            <span class="breadcrumb-separator">▶</span>
-            <span class="breadcrumb-current">Maintenance</span>
-          </nav>
+          <h5 class="ml-4 color1" style="font-weight: bolder">
+            <font-awesome-icon
+              icon="circle-info"
+              class="viewIcon mr-2"
+              small
+            />Subcategory
+          </h5>
           <b-card class="cardProfile mainContent">
             <b-row>
               <b-col cols="6">
@@ -90,7 +92,7 @@
                   @click="$bvModal.show('bv-modal-create')"
                 >
                   <font-awesome-icon icon="circle-plus" class="icon" />
-                  New Maintenance
+                  Link New Subcategory
                 </b-button>
               </b-col>
             </b-row>
@@ -225,41 +227,40 @@ export default {
       },
       fields: [
         {
-          key: "details",
-          label: "DETAILS",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-        {
-          key: "technician",
-          label: "TECHNICIAN",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-        {
           key: "accountTitle",
-          label: "ACCOUNT",
+          label: "ACCOUNT TITLE",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
-          key: "description",
-          label: "DESCRIPTION",
+          key: "category",
+          label: "CATEGORY",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
-          key: "resolved",
-          label: "RESOLVED",
+          key: "code",
+          label: "CODE",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
-
+        {
+          key: "subcategory",
+          label: "SUBCATEGORY",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-left",
+        },
+        {
+          key: "isStatus",
+          label: "STATUS",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-left",
+        },
         {
           key: "actions",
           label: "",

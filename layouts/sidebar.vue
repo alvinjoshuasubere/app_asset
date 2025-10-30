@@ -88,7 +88,7 @@
             >
               <b-row class="adminStyle">
                 <b-col cols="2">
-                  <span><font-awesome-icon icon="key" class="icon" /></span>
+                  <span><font-awesome-icon icon="sliders" class="icon" /></span>
                 </b-col>
                 <b-col>
                   <span class="ml-2 mr-2 sidebarText">File Maintenance</span>
@@ -364,22 +364,34 @@ export default {
       ],
       files: [
         {
-          path: "/file_maintenance/drivers",
-          icon: "user",
-          description: "List of Drivers",
-          action: "View Drivers",
+          path: "/file_maintenance/accounts",
+          icon: "file-invoice",
+          description: "Accounts",
+          action: "View list of accounts",
         },
         {
-          path: "/file_maintenance/address",
-          icon: "location-dot",
-          description: "List of Address",
-          action: "View Address",
+          path: "/file_maintenance/subcategory",
+          icon: "border-all",
+          description: "Subcategory",
+          action: "View list of subcategory",
         },
         {
-          path: "/file_maintenance/cluster",
-          icon: "magnifying-glass-location",
-          description: "List of Cluster",
-          action: "View Clusters",
+          path: "/file_maintenance/suppliers",
+          icon: "people-group",
+          description: "Suppliers",
+          action: "View list of suppliers",
+        },
+        {
+          path: "/file_maintenance/manufacturers",
+          icon: "chart-simple",
+          description: "Manufacturers",
+          action: "View list of manufacturers",
+        },
+        {
+          path: "/file_maintenance/attachments",
+          icon: "image",
+          description: "Attachments",
+          action: "View list of attachments",
         },
       ],
       links: [

@@ -1,32 +1,72 @@
-.xspacer{
-  margin:0 .3rem;
+.xspacer {
+  margin: 0 0.3rem;
 }
-.rspacer{
-  margin-right:.6rem;
+.rspacer {
+  margin-right: 0.6rem;
 }
-.rspacer-2{
-  margin-right:1.2rem;
+.rspacer-2 {
+  margin-right: 1.2rem;
 }
-.lspacer{
-  margin-left:.6rem;
+.lspacer {
+  margin-left: 0.6rem;
 }
-.fullscreen{
-  width:100vw;
-  height:100vh;
+.fullscreen {
+  width: 100vw;
+  height: 100vh;
 }
-.grid-center{
-  display:grid;
+.grid-center {
+  display: grid;
   place-items: center;
 }
-.flex-center{
-  display:flex;
+.flex-center {
+  display: flex;
   justify-content: center;
   align-items: center;
 }
+.breadcrumb-separator {
+  color: #267bff;
+}
 
-.no-outline{
-  &:focus{
+.no-outline {
+  &:focus {
     box-shadow: none !important;
-    border:1px solid #CCCCCC !important;
+    border: 1px solid #cccccc !important;
   }
+}
+.assetModalHeader {
+  background-color: #0b345f !important;
+  color: #ffffff;
+}
+.section-title {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.detail-group {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #2a5298;
+  margin-bottom: 20px;
+}
+
+.asset-code {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.asset-name {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+}
+
+.asset-office {
+  font-size: 0.9rem;
+  color: #495057;
+  margin-bottom: 10px;
 }

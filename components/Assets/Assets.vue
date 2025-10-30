@@ -1,15 +1,328 @@
 <template>
   <div class="my-3" id="requests-view">
+    <Loading v-if="showLoading" style="z-index: 9999" />
+    <!-- Add Asset Modal -->
+    <b-modal
+      no-close-on-backdrop
+      header-class="assetModalHeader"
+      id="bv-modal-asset-details"
+      title="Add Asset Item Details"
+      size="xl"
+      @close="cancelAssetDetails"
+    >
+      <b-container fluid>
+        <!-- Modal Title -->
+        <b-row class="mb-4">
+          <b-col cols="12" class="text-center">
+            <h4 class="modal-title-custom">
+              <i class="fas fa-link"></i> Asset Information Form
+            </h4>
+          </b-col>
+        </b-row>
+
+        <!-- Status -->
+        <b-row>
+          <b-col cols="12">
+            <b-form-group label="Status">
+              <b-form-input
+                v-model="assetInfo.status"
+                value="Serviceable"
+                readonly
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Asset Account & Category -->
+        <b-row>
+          <b-col md="6">
+            <b-form-group label="Asset Account">
+              <b-form-select
+                v-model="assetInfo.assetAccount"
+                :options="assetAccountOptions"
+              >
+                <template #first>
+                  <b-form-select-option :value="null"
+                    >Nothing selected</b-form-select-option
+                  >
+                </template>
+              </b-form-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Asset Category">
+              <b-form-select
+                v-model="assetInfo.assetCategory"
+                :options="assetCategoryOptions"
+              >
+                <template #first>
+                  <b-form-select-option :value="null"
+                    >Nothing selected</b-form-select-option
+                  >
+                </template>
+              </b-form-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Asset Subcategory & Unit -->
+        <b-row>
+          <b-col md="6">
+            <b-form-group label="Asset Subcategory">
+              <b-form-select
+                v-model="assetInfo.assetSubcategory"
+                :options="assetSubcategoryOptions"
+              >
+                <template #first>
+                  <b-form-select-option :value="null"
+                    >Nothing selected</b-form-select-option
+                  >
+                </template>
+              </b-form-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Unit">
+              <b-form-select v-model="assetInfo.unit" :options="unitOptions">
+                <template #first>
+                  <b-form-select-option :value="null"
+                    >Nothing selected</b-form-select-option
+                  >
+                </template>
+              </b-form-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Asset Department & Date Acquired -->
+        <b-row>
+          <b-col md="6">
+            <b-form-group label="Asset Department">
+              <b-form-select
+                v-model="assetInfo.assetDepartment"
+                :options="departmentOptions"
+              >
+                <template #first>
+                  <b-form-select-option :value="null"
+                    >Nothing selected</b-form-select-option
+                  >
+                </template>
+              </b-form-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Date Acquired">
+              <b-form-input
+                type="date"
+                v-model="assetInfo.dateAcquired"
+                placeholder="10/29/2025"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Item Description & Cost -->
+        <b-row>
+          <b-col md="6">
+            <b-form-group label="Item Description">
+              <b-form-textarea
+                v-model="assetInfo.itemDescription"
+                placeholder="Enter Asset Description Here"
+                rows="3"
+              ></b-form-textarea>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Cost">
+              <b-input-group prepend="Php">
+                <b-form-input
+                  type="number"
+                  v-model="assetInfo.cost"
+                  placeholder="Enter Asset Cost Here"
+                  step="0.01"
+                ></b-form-input>
+              </b-input-group>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Warranty Options -->
+        <b-row class="mb-3">
+          <b-col cols="12">
+            <b-form-group>
+              <b-form-checkbox
+                v-model="assetInfo.noWarranty"
+                name="no-warranty"
+                value="true"
+                unchecked-value="false"
+              >
+                No Asset Warranty Available
+              </b-form-checkbox>
+              <b-form-checkbox
+                v-model="assetInfo.hasWarranty"
+                name="has-warranty"
+                value="true"
+                unchecked-value="false"
+                class="ml-3"
+              >
+                Has Warranty
+              </b-form-checkbox>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Remove Asset Assignment Toggle -->
+        <b-row class="mb-4">
+          <b-col cols="12">
+            <div class="d-flex align-items-center">
+              <b-form-checkbox
+                v-model="assetInfo.removeAssignment"
+                switch
+                size="lg"
+                class="mr-3"
+              >
+              </b-form-checkbox>
+              <span class="font-weight-bold">Remove Asset Assignment</span>
+            </div>
+          </b-col>
+        </b-row>
+
+        <!-- Assignment Details Section -->
+        <b-row class="mb-4">
+          <b-col cols="12" class="text-center">
+            <h5 class="section-title-custom">
+              <i class="fas fa-user"></i> Assignment Details
+            </h5>
+          </b-col>
+        </b-row>
+
+        <!-- Accountable Employee/Officer & Actual User -->
+        <b-row>
+          <b-col md="6">
+            <b-form-group>
+              <template #label>
+                <div class="d-flex align-items-center">
+                  <span>Accountable Employee/Officer</span>
+                  <b-form-checkbox
+                    v-model="assetInfo.sameAsActualUser"
+                    class="ml-3 mb-0"
+                    size="sm"
+                  >
+                    Same as Actual User
+                  </b-form-checkbox>
+                </div>
+              </template>
+              <b-input-group>
+                <b-form-input
+                  v-model="assetInfo.accountableEmployee"
+                  placeholder="Insert Accountable Employee/Officer Here . . ."
+                ></b-form-input>
+                <b-input-group-append>
+                  <b-button variant="outline-primary">
+                    <i class="fas fa-user-plus"></i>
+                  </b-button>
+                  <b-button variant="primary">
+                    <i class="fas fa-arrow-right"></i>
+                  </b-button>
+                </b-input-group-append>
+              </b-input-group>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Actual User">
+              <b-input-group>
+                <b-form-input
+                  v-model="assetInfo.actualUser"
+                  placeholder="Insert Actual User Here . . ."
+                ></b-form-input>
+                <b-input-group-append>
+                  <b-button variant="outline-primary">
+                    <i class="fas fa-user-plus"></i>
+                  </b-button>
+                  <b-button variant="primary">
+                    <i class="fas fa-arrow-right"></i>
+                  </b-button>
+                </b-input-group-append>
+              </b-input-group>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Department Assigned & Location -->
+        <b-row>
+          <b-col md="6">
+            <b-form-group label="Department Assigned">
+              <b-form-select
+                v-model="assetInfo.departmentAssigned"
+                :options="departmentOptions"
+              >
+                <template #first>
+                  <b-form-select-option :value="null"
+                    >Nothing selected</b-form-select-option
+                  >
+                </template>
+              </b-form-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Location">
+              <b-form-select
+                v-model="assetInfo.location"
+                :options="locationOptions"
+              >
+                <template #first>
+                  <b-form-select-option :value="null"
+                    >Nothing selected</b-form-select-option
+                  >
+                </template>
+              </b-form-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <!-- Condition & Remarks -->
+        <b-row>
+          <b-col md="6">
+            <b-form-group label="Condition">
+              <b-form-textarea
+                v-model="assetInfo.condition"
+                placeholder="Enter Condition Here (If Any)"
+                rows="4"
+              ></b-form-textarea>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Remarks">
+              <b-form-textarea
+                v-model="assetInfo.remarks"
+                placeholder="Enter Remarks Here (If Any)"
+                rows="4"
+              ></b-form-textarea>
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </b-container>
+
+      <template v-slot:modal-footer>
+        <div>
+          <b-button size="sm" class="greyBtn mr-2" @click="cancelAssetDetails">
+            Cancel
+          </b-button>
+          <b-button size="sm" class="primaryBtn" @click="saveAssetChanges">
+            Save Changes
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
+    <!-- End Modal -->
     <div class="mt-3">
       <b-row>
         <b-col>
-          <h5 class="ml-4 color1" style="font-weight: bolder">
-            <font-awesome-icon
-              icon="circle-info"
-              class="viewIcon mr-2"
-              small
-            />Assets
-          </h5>
+          <nav class="breadcrumb-container ml-4">
+            <a href="#" class="breadcrumb-link">Home</a>
+            <span class="breadcrumb-separator">▶</span>
+            <span class="breadcrumb-current">Assets</span>
+          </nav>
           <b-card class="cardProfile mainContent">
             <b-row>
               <b-col cols="6">
@@ -79,7 +392,7 @@
                 </div>
               </b-col>
 
-              <!-- Right: Create New MTOP -->
+              <!-- Right: add new asset -->
               <b-col
                 cols="3"
                 class="d-flex align-items-end justify-content-end"
@@ -88,19 +401,19 @@
                   class="defaultBtn"
                   style="background: #0b345f; border: none; font-size: 13px"
                   v-b-tooltip.hover
-                  title="Create MTOP"
-                  @click="$bvModal.show('bv-modal-create')"
+                  title="Add new Asset"
+                  @click="$bvModal.show('bv-modal-asset-details')"
                 >
                   <font-awesome-icon icon="circle-plus" class="icon" />
-                  Create New Transaction
+                  Add New Asset
                 </b-button>
               </b-col>
             </b-row>
 
-            <!-- table employees -->
+            <!-- table assets -->
             <b-table
               id="empTable"
-              class="my-3 mx-3"
+              class="mt-2"
               style="font-size: 12px"
               head-variant="light"
               show-empty
@@ -203,11 +516,13 @@
 
 <script>
 import axios from "axios";
-// import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
+import Loading from "@/components/LoadingOverlay/Loading";
 
 export default {
   layout: "sidebar",
-  components: {},
+  components: {
+    Loading,
+  },
   async created() {},
   data() {
     return {
@@ -228,42 +543,42 @@ export default {
       fields: [
         {
           key: "accountTitle",
-          label: "ACCOUNT TITLE",
+          label: "Account Title",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
           key: "subcategory",
-          label: "SUBCATEGORY",
+          label: "Subcategory",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
           key: "description",
-          label: "DESCRIPTION",
+          label: "Description",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
           key: "propertyNo",
-          label: "PROPERTY NO.",
+          label: "Property No.",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
           key: "status",
-          label: "STATUS",
+          label: "Status",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
           key: "assigned",
-          label: "ASSIGNED",
+          label: "Assigned",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
@@ -275,12 +590,99 @@ export default {
           class: "text-center",
         },
       ],
+      assetInfo: {
+        status: "Serviceable",
+        assetAccount: null,
+        assetCategory: null,
+        assetSubcategory: null,
+        unit: null,
+        assetDepartment: null,
+        dateAcquired: "",
+        itemDescription: "",
+        cost: null,
+        noWarranty: "false",
+        hasWarranty: "false",
+        removeAssignment: false,
+        accountableEmployee: "",
+        actualUser: "",
+        sameAsActualUser: false,
+        departmentAssigned: null,
+        location: null,
+        condition: "",
+        remarks: "",
+      },
+      assetAccountOptions: [
+        { value: "equipment", text: "Equipment" },
+        { value: "furniture", text: "Furniture & Fixtures" },
+        { value: "vehicle", text: "Transportation Equipment" },
+      ],
+      assetCategoryOptions: [
+        {
+          value: "ict",
+          text: "Information Communication Technology Equipment",
+        },
+        { value: "office", text: "Office Equipment" },
+        { value: "technical", text: "Technical & Scientific Equipment" },
+      ],
+      assetSubcategoryOptions: [
+        { value: "computer", text: "Computer" },
+        { value: "printer", text: "Printer" },
+        { value: "scanner", text: "Scanner" },
+      ],
+      unitOptions: [
+        { value: "unit", text: "Unit" },
+        { value: "set", text: "Set" },
+        { value: "piece", text: "Piece" },
+      ],
+      departmentOptions: [
+        { value: "hr", text: "Human Resources" },
+        { value: "it", text: "Information Technology" },
+        { value: "finance", text: "Finance" },
+        { value: "admin", text: "Administration" },
+      ],
+      locationOptions: [
+        { value: "floor1", text: "1st Floor - City Hall Main Building" },
+        { value: "floor2", text: "2nd Floor - City Hall Main Building" },
+        { value: "floor3", text: "3rd Floor - City Hall Main Building" },
+      ],
     };
   },
   computed: {},
   watch: {},
   mounted() {},
-  methods: {},
+  methods: {
+    formatDate(date) {
+      if (!date) return "";
+      const d = new Date(date);
+      return d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    },
+    async getAllAssets() {
+      this.isBusy = true;
+      this.showLoading = true;
+      try {
+        const res = await this.$axios.get(
+          `${this.$axios.defaults.baseURL}/api-aims/items/get-items-filter?text='vehicle'`
+        );
+        this.assetList = res.data || [];
+      } catch (error) {
+        console.error("Failed to load Assets", error);
+      } finally {
+        this.isBusy = false;
+        this.showLoading = false;
+      }
+    },
+    saveAssetChanges() {
+      console.log("Saving asset changes:", this.assetForm);
+      this.$bvModal.hide("bv-modal-asset-details");
+    },
+    cancelAssetDetails() {
+      this.$bvModal.hide("bv-modal-asset-details");
+    },
+  },
 };
 </script>
 

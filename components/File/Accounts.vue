@@ -6,7 +6,9 @@
           <nav class="breadcrumb-container ml-4">
             <a href="#" class="breadcrumb-link">Home</a>
             <span class="breadcrumb-separator">▶</span>
-            <span class="breadcrumb-current">Maintenance</span>
+            <a href="#" class="breadcrumb-link">File</a>
+            <span class="breadcrumb-separator">▶</span>
+            <span class="breadcrumb-current">Accounts</span>
           </nav>
           <b-card class="cardProfile mainContent">
             <b-row>
@@ -90,7 +92,7 @@
                   @click="$bvModal.show('bv-modal-create')"
                 >
                   <font-awesome-icon icon="circle-plus" class="icon" />
-                  New Maintenance
+                  Record New Maintenance
                 </b-button>
               </b-col>
             </b-row>
@@ -225,46 +227,19 @@ export default {
       },
       fields: [
         {
-          key: "details",
-          label: "DETAILS",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-        {
-          key: "technician",
-          label: "TECHNICIAN",
+          key: "code",
+          label: "CODE",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
           key: "accountTitle",
-          label: "ACCOUNT",
+          label: "GENERAL ACCOUNT TITLE",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
-        },
-        {
-          key: "description",
-          label: "DESCRIPTION",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-        {
-          key: "resolved",
-          label: "RESOLVED",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-left",
-        },
-
-        {
-          key: "actions",
-          label: "",
-          sortable: true,
-          class: "text-center",
+          tdStyle: { width: "90%" },
         },
       ],
     };

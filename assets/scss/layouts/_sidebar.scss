@@ -154,8 +154,8 @@ a.nuxt-link-active {
 
 .custom-control-input:checked ~ .custom-control-label::before {
   color: #fff;
-  border-color: #efefef;
-  background-color: #efefef;
+  border: none !important;
+  background-color: #0b345f !important;
   &:focus {
     box-shadow: transparent;
   }

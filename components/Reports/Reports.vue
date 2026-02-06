@@ -48,16 +48,5 @@
   </script>
   
   <style>
-  .page-item.active .page-link {
-    background-color: #00a651 !important;
-    border-color: #00a651 !important;
-    transition: background-color 0.3s;
-  }
-  .page-item .page-link {
-    color: black;
-  }
-  #filterInput {
-    height: 31px;
-  }
   </style>
   

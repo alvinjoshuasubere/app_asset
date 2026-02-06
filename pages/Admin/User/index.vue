@@ -5,7 +5,7 @@
     <!-- Add User -->
     <b-modal
       size="md"
-      header-class="mtopColor"
+      header-class="assetColor"
       id="bv-modal-addUsers"
       class="modal"
       no-close-on-backdrop
@@ -61,7 +61,7 @@
     <!-- Edit User -->
     <b-modal
       size="md"
-      header-class="mtopColor"
+      header-class="assetColor"
       id="bv-modal-editUsers"
       class="modal"
       @close="cancelReset"
@@ -120,7 +120,7 @@
     <!-- Reset modal -->
     <b-modal
       size="md"
-      header-class="mtopColor"
+      header-class="assetColor"
       id="bv-modal-reset"
       class="modal"
       no-close-on-backdrop

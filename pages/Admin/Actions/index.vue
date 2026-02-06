@@ -4,7 +4,7 @@
     <!-- Add Modal -->
     <b-modal
       size="md"
-      header-class="mtopColor"
+      header-class="assetColor"
       id="bv-modal-addAct"
       class="modal"
       no-close-on-backdrop
@@ -49,7 +49,7 @@
     <!-- Edit Modal -->
     <b-modal
       size="md"
-      header-class="mtopColor"
+      header-class="assetColor"
       id="bv-modal-editAct"
       class="modal"
       no-close-on-backdrop

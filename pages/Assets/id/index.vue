@@ -143,10 +143,12 @@ html {
 }
 
 .details-row {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 6px;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 8px;
+  align-items: start;
   font-size: 15px;
+  padding: 6px 0;
 }
 
 .label {
@@ -156,8 +158,35 @@ html {
 }
 
 .value {
-  flex-grow: 1;
   color: #1a1a1a;
   font-weight: 600;
+  word-break: break-word;
 }
+.backBtn {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.mainContent {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 1rem 1.25rem;
+}
+
+.details-row:nth-child(odd) {
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 576px) {
+  .details-row {
+    grid-template-columns: 1fr;
+  }
+  .label {
+    width: auto;
+  }
+}
+
 </style>

@@ -1,88 +1,60 @@
 <template>
-  <div id="loader">
-    <div class="loader1 main">
-      <div class="loading"></div>
-    </div>
-    <div class="loader2">
-      <div class="load"></div>
-    </div>
-    <div class="loader3">
+  <div class="bg">
+    <div class="loader">
+      <div class="ring"></div>
       <div class="logo"></div>
     </div>
   </div>
 </template>
+
 <script>
-export default {
-  mounted() {
-    var load = document.getElementById("loader");
-    load.style.display = "block"; //use 'none' to hide
-  },
-};
+export default {};
 </script>
-<style scoped>
-/* / FOR LOADING OVERLAY / */
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-.main {
-  background: #00000052;
-  height: 100vh;
-  width: 100%;
-  z-index: 20001;
-}
-.loader1,
-.loader2,
-.loader3 {
+
+<style scoped lang="scss">
+.bg {
+  z-index: 1000;
   position: fixed;
-  z-index: 20000;
   left: 0;
   top: 0;
+  background: #00000080;
   width: 100%;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.bg {
-  background: #ffffff4f;
-  width: 100%;
-  height: 100vh;
-}
-.loading {
-  border: 4px solid #ffffff00;
-  border-radius: 50%;
-  border-top: 4px solid #008ed7;
-  width: 150px;
-  height: 150px;
-  animation: spin 1s linear infinite;
-}
-.load {
-  border: 4px solid #ffffff00;
-  border-radius: 50%;
-  border-top: 4px solid #d5201b;
-  width: 180px;
-  height: 180px;
-  animation: spin2 0.8s linear infinite;
-}
-.logo {
-  background-image: url("/city_logo.png");
-  background-size: cover;
-  margin: auto;
-  width: 120px;
-  height: 120px;
-  /* animation: vrotate 2.3s linear infinite; */
+  animation: fadeIn 0.4s;
 }
 
-/* / Safari / */
-@-webkit-keyframes spin {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
+.loader {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 100px;
+  border: 8px solid transparent;
+  border-top-color: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: spin 0.5s linear infinite;
+}
+
+.logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background-image: url("/city_logo.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 @keyframes spin {
@@ -94,33 +66,6 @@ body {
   }
 }
 
-@-webkit-keyframes spin2 {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
-@keyframes spin2 {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@-webkit-keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -129,29 +74,4 @@ body {
     opacity: 1;
   }
 }
-
-@-webkit-keyframes vrotate {
-  0% {
-    opacity: 20%;
-  }
-  50% {
-    opacity: 100%;
-  }
-  100% {
-    opacity: 20%;
-  }
-}
-
-@keyframes vrotate {
-  0% {
-    opacity: 20%;
-  }
-  50% {
-    opacity: 100%;
-  }
-  100% {
-    opacity: 20%;
-  }
-}
-/* / UNTIL HERE LOADING OVERLAY / */
 </style>

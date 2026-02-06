@@ -1,8 +1,20 @@
-.err {
-  background-color: #f12d2d;
-  color: white;
+.alert {
+  bottom: 0%;
+  right: 1%;
+  position: fixed;
+  z-index: 9999;
+  font-size: 13px;
 }
-.succ{
-  background: #28A745;
-  color:white;
+.alert-danger {
+  color: #fff;
+  border-left: 5px solid #ac0003d2;
+  border: none;
+  background-color: #ac0003d2;
+}
+
+.alert-success {
+  color: #fff;
+  border-left: 5px solid #006200;
+  border: none;
+  background-color: #006200;
 }

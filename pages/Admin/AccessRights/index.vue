@@ -3,7 +3,7 @@
     <!-- Modal Edit -->
     <b-modal
       size="xl"
-      header-class="mtopColor"
+      header-class="assetColor"
       id="bv-modal-editDept"
       class="modal"
       no-close-on-backdrop

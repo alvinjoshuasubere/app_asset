@@ -84,7 +84,7 @@
               >
                 <b-button
                   class="defaultBtn"
-                  style="background: #0b345f; border: none; font-size: 13px"
+                  style="font-size: 13px"
                   v-b-tooltip.hover
                   title="Create MTOP"
                   @click="$bvModal.show('bv-modal-create')"

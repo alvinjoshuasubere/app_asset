@@ -1,21 +1,22 @@
 $topBtnColor:#343A40;
 $topTxtColor: #F5F5F5;
 
-.topRightBarContainer{
-  margin-top: .4rem;
-  display:flex;
-  right:24px;
-  justify-content: flex-center;
+.topRightBarContainer {
+  margin-top: 0.4rem;
+  display: flex;
+  right: 24px;
+  justify-content: center; /* Corrected property value */
   align-items: center;
-  width:auto;
-  position:absolute;
-
+  width: auto;
+  position: fixed; /* Fixed to the top */
+  top: 0; /* Fixed to the top */
 }
-.topRightBar{
+.topRightBar {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 
 .loBtnContainer{
   padding-bottom:10px;

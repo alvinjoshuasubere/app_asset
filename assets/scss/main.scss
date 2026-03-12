@@ -1,3 +1,37 @@
+// Sass Variables
+$primary: #0b345f !default;
+$green: #28a745 !default;
+$success: $green !default;
+$sm: 2rem !default;
+
+$CITY1: #008ed8;
+$CITY2: #d4221b;
+
+$BFI1: #00a651;
+$BFI2: #a6ce39;
+$BG: #eff8f4;
+
+$mainT: #193c2a;
+$subT: #6d7571;
+$subT_F: #6d757123;
+$faded: #e9ffe4;
+
+$colPos1: #008ed8;
+$colPos1_F: #5abc442a;
+$colPos1_H: #3c882b;
+
+$colPos2: #fdf601;
+$colPos2_F: #00a6501f;
+$colPos2_H: #fdf601;
+
+$colEdit: #ee8400;
+$colEdit_F: #ee830031;
+$colEdit_H: #c96e00;
+
+$colView: #2f6c82;
+$colView_F: #2f6c8223;
+$colView_H: #1e4e5f;
+
 @mixin decentBtn {
   padding: 0.2rem;
   border-style: solid;
@@ -5,8 +39,8 @@
   color: white;
 }
 
-@import "~bootstrap/scss/bootstrap.scss";
-@import "~bootstrap-vue/src/index.scss";
+@import "bootstrap/dist/css/bootstrap.css";
+@import "bootstrap-vue/dist/bootstrap-vue.css";
 
 // CUSTOM STYLES
 @import "customs/customTables";
@@ -17,6 +51,7 @@
 @import "customs/customAlert";
 @import "customs/customClasses";
 @import "customs/customAssets";
+@import "customs/customSelect";
 
 //COMPONENTS
 @import "components/addingContainer";
@@ -62,12 +97,20 @@
   font-family: font_BL;
   src: url("~/assets/fonts/red-hat-display-black.ttf");
 }
+@font-face {
+  font-family: font_P;
+  src: url("~/assets/fonts/Poppins-Medium.ttf");
+}
+@font-face {
+  font-family: font_PM;
+  src: url("~/assets/fonts/Poppins-Regular.ttf");
+}
 
 * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: font_R;
+  font-family: font_P;
   outline-width: 0;
   outline-style: none;
   border: 0px;
@@ -98,9 +141,6 @@ h6 {
 }
 
 :root {
-  $green: #28a745 !default;
-  $success: $green !default;
-  $sm: 2rem !default;
   font-size: 16px;
   --green: #28a745;
   --primary: #0b345f;
@@ -126,34 +166,6 @@ h6 {
   --yellow: #fdf601;
   --black: black;
   --dark: #193c2a;
-
-  $CITY1: #008ed8;
-  $CITY2: #d4221b;
-
-  $BFI1: #00a651;
-  $BFI2: #a6ce39;
-  $BG: #eff8f4;
-
-  $mainT: #193c2a;
-  $subT: #6d7571;
-  $subT_F: #6d757123;
-  $faded: #e9ffe4;
-
-  $colPos1: #008ed8;
-  $colPos1_F: #5abc442a;
-  $colPos1_H: #3c882b;
-
-  $colPos2: #fdf601;
-  $colPos2_F: #00a6501f;
-  $colPos2_H: #fdf601;
-
-  $colEdit: #ee8400;
-  $colEdit_F: #ee830031;
-  $colEdit_H: #c96e00;
-
-  $colView: #2f6c82;
-  $colView_F: #2f6c8223;
-  $colView_H: #1e4e5f;
 }
 .loginContainer {
   height: 100vh;

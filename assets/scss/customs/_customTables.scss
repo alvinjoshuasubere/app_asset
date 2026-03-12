@@ -99,8 +99,7 @@ tbody {
 }
 /* Hover effect */
 .tableAsset tbody tr:hover {
-  background-color: #2062a9 !important;
-  color: #fff !important;
+  background-color: #d0dcf0 !important;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   font-weight: 600;
@@ -110,8 +109,7 @@ tbody {
 .tableAsset tbody tr:active,
 .tableAsset tbody tr:focus,
 .tableAsset .b-table-row-selected {
-  background-color: #2062a9 !important;
-  color: #fff !important;
+  background-color: #d0dcf0 !important;
   font-weight: 700;
   transition: all 0.2s ease-in-out;
 }
@@ -179,9 +177,11 @@ tbody > tr:hover {
   /* creates padding around scroll thumb */
 }
 
-body {
-  scrollbar-width: thin;
-  /* "auto" or "thin" */
-  scrollbar-color: #aeaeae46 rgba(128, 128, 128, 0.267);
-  /* scroll thumb and track */
+tbody {
+  tr {
+    td {
+      vertical-align: middle !important;
+    }
+  }
 }
+

@@ -86,13 +86,13 @@
               >
                 <b-button
                   class="defaultBtn"
-                  style="background: #0b345f; border: none; font-size: 13px"
+                  style="background: #0b345f; font-size: 13px"
                   v-b-tooltip.hover
                   title="Create MTOP"
                   @click="$bvModal.show('bv-modal-create')"
                 >
                   <font-awesome-icon icon="circle-plus" class="icon" />
-                  Record New Maintenance
+                  Add New Account
                 </b-button>
               </b-col>
             </b-row>
@@ -179,6 +179,22 @@
                     </b-col>
                   </b-row>
                 </template> -->
+              <template v-slot:table-caption>
+                <b-row align-h="end">
+                  <b-col cols="6">{{ bottomLabel }}</b-col>
+                  <b-col cols="6">
+                    <b-pagination
+                      v-model="currentPage"
+                      class="mr-2"
+                      :total-rows="totalRows"
+                      :per-page="perPage"
+                      pills
+                      align="right"
+                      size="sm"
+                    ></b-pagination>
+                  </b-col>
+                </b-row>
+              </template>
             </b-table>
           </b-card>
         </b-col>
@@ -219,6 +235,7 @@ export default {
       sortDirection: "asc",
       sortBy: "accountTitle",
       filter: "",
+      accountsList: [],
 
       alert: {
         showAlert: 0,
@@ -227,14 +244,14 @@ export default {
       },
       fields: [
         {
-          key: "code",
+          key: "GenAcctCode",
           label: "CODE",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
-          key: "accountTitle",
+          key: "GenAcctTitle",
           label: "GENERAL ACCOUNT TITLE",
           sortable: true,
           sortDirection: "desc",
@@ -244,10 +261,75 @@ export default {
       ],
     };
   },
-  computed: {},
-  watch: {},
-  mounted() {},
-  methods: {},
+  computed: {
+    filteredItems() {
+      let items = this.accountsList;
+      return items;
+    },
+
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.perPage;
+      const end = start + this.perPage;
+      return this.filteredItems.slice(start, end);
+    },
+
+    totalRows() {
+      return this.filteredItems.length;
+    },
+    bottomLabel() {
+      let end = this.perPage * this.currentPage;
+      let start = end - this.perPage + 1;
+
+      if (end > this.filteredItems.length) {
+        end = this.filteredItems.length;
+      }
+      if (this.filteredItems.length === 0) {
+        start = 0;
+      }
+      return `Showing ${start} to ${end} of ${this.filteredItems.length} entries`;
+    },
+  },
+  watch: {
+    filter: {
+      handler() {
+        this.getAccounts();
+      },
+      immediate: true,
+    },
+  },
+  async mounted() {
+    await this.getAccounts();
+  },
+  methods: {
+    async getAccounts() {
+      this.isBusy = true;
+      this.showLoading = true;
+      try {
+        let url;
+        if (this.filter) {
+          url = `${this.$axios.defaults.baseURL}/file-maintenance/accounts/get-all/?text=${this.filter}`;
+        } else {
+          url = `${this.$axios.defaults.baseURL}/file-maintenance/accounts/get-all/?text=`;
+        }
+        const res = await this.$axios.get(url);
+        this.accountsList = res.data || [];
+      } catch (error) {
+        console.error("Failed to load Accounts", error);
+        this.alert = {
+          showAlert: true,
+          variant: "danger",
+          message: "Failed to load accounts data",
+        };
+      } finally {
+        this.isBusy = false;
+        this.showLoading = false;
+      }
+    },
+    clearFilter() {
+      this.filter = "";
+      this.getAccounts();
+    },
+  },
 };
 </script>
 

@@ -3,13 +3,13 @@
     <div class="mt-3">
       <b-row>
         <b-col>
-          <h5 class="ml-4 color1" style="font-weight: bolder">
-            <font-awesome-icon
-              icon="circle-info"
-              class="viewIcon mr-2"
-              small
-            />Suppliers
-          </h5>
+           <nav class="breadcrumb-container ml-4">
+            <a href="#" class="breadcrumb-link">Home</a>
+            <span class="breadcrumb-separator">▶</span>
+            <a href="#" class="breadcrumb-link">File</a>
+            <span class="breadcrumb-separator">▶</span>
+            <span class="breadcrumb-current">Suppliers</span>
+          </nav>
           <b-card class="cardProfile mainContent">
             <b-row>
               <b-col cols="6">
@@ -86,7 +86,7 @@
               >
                 <b-button
                   class="defaultBtn"
-                  style="background: #0b345f; border: none; font-size: 13px"
+                  style="background: #0b345f; font-size: 13px"
                   v-b-tooltip.hover
                   title="Create MTOP"
                   @click="$bvModal.show('bv-modal-create')"
@@ -121,6 +121,11 @@
                   <b-spinner class="align-middle"></b-spinner>
                   <strong>&nbsp;Loading...</strong>
                 </div>
+              </template>
+              <template v-slot:cell(is_active)="row">
+                <b-badge :variant="row.item.is_active ? 'success' : 'secondary'">
+                  {{ row.item.is_active ? 'Active' : 'Inactive' }}
+                </b-badge>
               </template>
               <!-- <template v-slot:cell(FullName)="row">
                   <span
@@ -179,6 +184,22 @@
                     </b-col>
                   </b-row>
                 </template> -->
+              <template v-slot:table-caption>
+                <b-row align-h="end">
+                  <b-col cols="6">{{ bottomLabel }}</b-col>
+                  <b-col cols="6">
+                    <b-pagination
+                      v-model="currentPage"
+                      class="mr-2"
+                      :total-rows="totalRows"
+                      :per-page="perPage"
+                      pills
+                      align="right"
+                      size="sm"
+                    ></b-pagination>
+                  </b-col>
+                </b-row>
+              </template>
             </b-table>
           </b-card>
         </b-col>
@@ -217,8 +238,10 @@ export default {
       isBusy: false,
       sortDesc: false,
       sortDirection: "asc",
-      sortBy: "accountTitle",
+      sortBy: "supplierName",
       filter: "",
+      suppliersList: [],
+      isActive: 1,
 
       alert: {
         showAlert: 0,
@@ -227,20 +250,40 @@ export default {
       },
       fields: [
         {
-          key: "supplierName",
+          key: "supplier_name",
           label: "SUPPLIER NAME",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
-          key: "supplierAddress",
+          key: "supplier_address",
           label: "SUPPLIER ADDRESS",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
-
+        {
+          key: "ContactPerson",
+          label: "CONTACT PERSON",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-left",
+        },
+        {
+          key: "supplier_contactno",
+          label: "CONTACT NUMBER",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-left",
+        },
+        {
+          key: "is_active",
+          label: "STATUS",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-left",
+        },
         {
           key: "actions",
           label: "",
@@ -250,10 +293,71 @@ export default {
       ],
     };
   },
-  computed: {},
-  watch: {},
-  mounted() {},
-  methods: {},
+  computed: {
+    filteredItems() {
+      let items = this.suppliersList;
+      return items;
+    },
+
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.perPage;
+      const end = start + this.perPage;
+      return this.filteredItems.slice(start, end);
+    },
+
+    totalRows() {
+      return this.filteredItems.length;
+    },
+    bottomLabel() {
+      let end = this.perPage * this.currentPage;
+      let start = end - this.perPage + 1;
+
+      if (end > this.filteredItems.length) {
+        end = this.filteredItems.length;
+      }
+      if (this.filteredItems.length === 0) {
+        start = 0;
+      }
+      return `Showing ${start} to ${end} of ${this.filteredItems.length} entries`;
+    },
+  },
+  watch: {
+    filter: {
+      handler() {
+        this.getSuppliers();
+      },
+      immediate: true,
+    },
+  },
+  async mounted() {
+    await this.getSuppliers();
+  },
+  methods: {
+    async getSuppliers() {
+      this.isBusy = true;
+      this.showLoading = true;
+      try {
+        const res = await this.$axios.get(
+          `${this.$axios.defaults.baseURL}/file-maintenance/suppliers/get-all/?isActive=${this.isActive}&supplier=${this.filter || ''}`
+        );
+        this.suppliersList = res.data || [];
+      } catch (error) {
+        console.error("Failed to load Suppliers", error);
+        this.alert = {
+          showAlert: true,
+          variant: "danger",
+          message: "Failed to load suppliers data",
+        };
+      } finally {
+        this.isBusy = false;
+        this.showLoading = false;
+      }
+    },
+    clearFilter() {
+      this.filter = "";
+      this.getSuppliers();
+    },
+  },
 };
 </script>
 

@@ -9,20 +9,20 @@
       no-close-on-backdrop
     >
       <template v-slot:modal-title>
-        <h6>Edit Department and Access</h6>
+        <h6>Edit Role and Access</h6>
       </template>
 
       <b-card class="cardShadow">
         <b-row>
-          <div class="ml-3">Department Name:</div>
+          <div class="ml-3">Role Description:</div>
         </b-row>
         <b-row>
           <b-col>
             <b-form-input
-              id="departmentName"
+              id="roleDescription"
               type="text"
               style="font-size: 13px"
-              v-model="departmentName"
+              v-model="roleName"
             ></b-form-input>
           </b-col>
         </b-row>
@@ -44,17 +44,17 @@
               id="action-roles"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'SYSTEM MANAGER'
+                  (action) => action.module_desc === 'System Manager'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
           <b-col>
-            <span>ASSESSMENT</span>
+            <span>Maintenance</span>
             <b-form-checkbox-group
               name="admin module actions"
               stacked
@@ -63,17 +63,17 @@
               id="action-roles"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'ASSESSMENT'
+                  (action) => action.module_desc === 'Maintenance'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
           <b-col>
-            <span>MTOPS RECORD</span>
+            <span>Assets</span>
             <b-form-checkbox-group
               name="admin module actions"
               stacked
@@ -82,12 +82,12 @@
               id="dasgfd"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'MTOPS RECORD'
+                  (action) => action.module_desc === 'Assets'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
@@ -102,12 +102,12 @@
               id="dasgfd"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'REPORTS'
+                  (action) => action.module_desc === 'Reports'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
@@ -122,12 +122,32 @@
               id="dasgfd"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'FILE MAINTENANCE'
+                  (action) => action.module_desc === 'File Maintenance'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
+              >
+            </b-form-checkbox-group>
+          </b-col>
+
+          <b-col>
+            <span>Dashboard</span>
+            <b-form-checkbox-group
+              name="admin module actions"
+              stacked
+              switches
+              v-model="selectedAction"
+              id="dasgfd"
+            >
+              <b-form-checkbox
+                :value="action.user_actions_id"
+                v-for="(action, i) in activeActions.filter(
+                  (action) => action.module_desc === 'Dashboard'
+                )"
+                :key="i"
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
@@ -158,18 +178,18 @@
       @hide="resetFields()"
     >
       <template v-slot:modal-title>
-        <h6>Add Department and Access</h6>
+        <h6>Add Role and Access</h6>
       </template>
 
       <b-card class="cardShadow">
-        <small class="ml-1">Department Name:</small>
+        <small class="ml-1">Role Name:</small>
         <b-row>
           <b-col>
             <b-form-input
               id="input-rolename-role"
               type="text"
               style="font-size: 10px"
-              v-model="departmentName"
+              v-model="roleName"
             ></b-form-input>
           </b-col>
         </b-row>
@@ -190,12 +210,12 @@
               id="action-roles"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'SYSTEM MANAGER'
+                  (action) => action.module_desc === 'System Manager'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
@@ -210,12 +230,12 @@
               id="dasgfd"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'MTOPS RECORD'
+                  (action) => action.module_desc === 'Assets'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
@@ -230,12 +250,12 @@
               id="dasgfd"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'REPORTS'
+                  (action) => action.module_desc === 'Reports'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
@@ -250,12 +270,31 @@
               id="dasgfd"
             >
               <b-form-checkbox
-                :value="action.ActionID"
+                :value="action.user_actions_id"
                 v-for="(action, i) in activeActions.filter(
-                  (action) => action.MenuDescription === 'FILE MAINTENANCE'
+                  (action) => action.module_desc === 'File Maintenance'
                 )"
                 :key="i"
-                >{{ action.ActionDescription }}</b-form-checkbox
+                >{{ action.action_desc }}</b-form-checkbox
+              >
+            </b-form-checkbox-group>
+          </b-col>
+           <b-col>
+            <span>Dashboard</span>
+            <b-form-checkbox-group
+              name="admin module actions"
+              stacked
+              switches
+              v-model="selectedAction"
+              id="dasgfd"
+            >
+              <b-form-checkbox
+                :value="action.user_actions_id"
+                v-for="(action, i) in activeActions.filter(
+                  (action) => action.module_desc === 'Dashboard'
+                )"
+                :key="i"
+                >{{ action.action_desc }}</b-form-checkbox
               >
             </b-form-checkbox-group>
           </b-col>
@@ -276,13 +315,11 @@
     <!-- CONTENT -->
     <b-row>
       <b-col>
-        <h5 class="ml-4" style="font-weight: bolder; font-family: font_B">
-          <font-awesome-icon
-            icon="circle-info"
-            class="viewIcon mr-2"
-            small
-          />Department and Access Information
-        </h5>
+        <nav class="breadcrumb-container ml-4">
+          <a href="#" class="breadcrumb-link">Home</a>
+          <span class="breadcrumb-separator">▶</span>
+          <span class="breadcrumb-current">Roles and Access</span>
+        </nav>
         <b-card class="cardProfile mainContent">
           <b-row>
             <b-col cols="8">
@@ -314,14 +351,14 @@
                 size="md"
                 @click="$bvModal.show('bv-modal-addDept')"
               >
-                <font-awesome-icon icon="plus" class="icon" />Add New Access
+                <font-awesome-icon icon="plus" class="icon" />Add New Role Access
               </b-button>
             </b-col>
           </b-row>
           <b-table
             head-variant="light"
             style="font-size: 12px"
-            class="my-3"
+            class="my-3 tableAsset"
             show-empty
             small
             :current-page="currentPage"
@@ -330,8 +367,9 @@
             :items="filteredAccess"
             :fields="fieldsAccess"
           >
-            <template v-slot:cell(actions)="row">
+          <template v-slot:cell(actions)="row">
               <button
+                id="editAddress"
                 class="editBtn"
                 @click="editDept(row.item)"
                 v-b-tooltip.noninteractive.hover
@@ -343,16 +381,8 @@
                   small
                 />
               </button>
-              <button
-                id="deleteAddress"
-                class="deleteBtn"
-                @click="deleteItem(row)"
-                v-b-tooltip.noninteractive.hover
-                title="Delete"
-              >
-                <font-awesome-icon icon="trash" class="viewIcon" small />
-              </button>
             </template>
+           
             <template v-slot:table-caption>
               <b-row align-h="end">
                 <b-col cols="6">{{ bottomLabel }}</b-col>
@@ -415,19 +445,21 @@ export default {
       isAlertVisible: false,
       actions: [],
       selectedAction: [],
-      departmentName: "",
-      departmentForm: {
+      roles: [],
+      roleDescription: "",
+      roleName: "",
+      roleForm: {
         id: null,
         actions: [],
-        DepartmentDescription: null,
-        department_name: null,
+        roleDescription: null,
+        role_name: null,
         user_id: null,
       },
 
       fieldsAccess: [
         {
-          key: "DepartmentDescription",
-          label: "Department",
+          key: "RoleDescription",
+          label: "Role",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
@@ -448,17 +480,17 @@ export default {
   },
   // middleware: "pageValidator",
   meta: {
-    access: { right: "View Department Access" },
+    access: { right: "View role Access" },
   },
   computed: {
     filteredAccess() {
       if (this.filterAccess == null) {
-        return this.filterAccess;
+        return this.roles;
       }
       const filterLowerCase = this.filterAccess.trim().toLowerCase();
 
-      return this.access_rights.filter((item) => {
-        return String(item.DepartmentDescription)
+      return this.roles.filter((item) => {
+        return String(item.role_desc)
           .toLowerCase()
           .includes(filterLowerCase);
       });
@@ -496,13 +528,13 @@ export default {
       try {
         const res = await axios({
           method: "GET",
-          url: `${this.$axios.defaults.baseURL}/admin/departments/get-roles`,
+          url: `${this.$axios.defaults.baseURL}/admin/roles/get-roles`,
           headers: {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "GET",
           },
         });
-        this.access_rights = res.data;
+        this.roles = res.data;
       } catch (error) {
         console.log(error);
       } finally {
@@ -530,9 +562,10 @@ export default {
     },
 
     editDept(data) {
-      this.departmentForm = data;
-      this.departmentName = data.DepartmentDescription;
-      this.selectedAction = this.departmentForm.actions
+      this.roleForm = data;
+      console.log(data, "data");
+      this.roleName = data.RoleDescription;
+      this.selectedAction = this.roleForm.actions
         .filter((action) => action.isActive)
         .map((action) => action.actions);
       this.$bvModal.show("bv-modal-editDept");
@@ -541,49 +574,34 @@ export default {
     async saveUpdate() {
       const finalActions = [];
 
-      this.departmentForm.department_name = this.departmentName;
-      this.departmentForm.user_id = "77";
       this.actions.forEach((action) => {
-        const existingAction = this.departmentForm.actions.find(
-          (accessRight) => accessRight.actions === action.ActionID
+        const isChecked = this.selectedAction.find(
+          (checkedAction) => checkedAction === action.user_actions_id
         );
-        if (
-          this.selectedAction.find(
-            (checkedAction) => checkedAction === action.ActionID
-          )
-        ) {
+        
+        const existingAction = this.roleForm.actions.find(
+          (accessRight) => accessRight.actions === action.user_actions_id
+        );
+
+        if (isChecked || (existingAction && existingAction.isActive)) {
           finalActions.push({
-            accessRightsId: existingAction
-              ? existingAction.actionRightsId
-              : null,
-            action: action.ActionID,
-            isActive: true,
+            accessRightsId: existingAction ? existingAction.actionRightsId : null,
+            user_actions_id: action.user_actions_id,
+            is_active: isChecked ? true : false,
           });
-        } else {
-          if (
-            this.departmentForm.actions.find(
-              (accessRight) => accessRight.actions === action.ActionID
-            )
-          ) {
-            console.log("unchecked");
-            finalActions.push({
-              accessRightsId: existingAction
-                ? existingAction.actionRightsId
-                : null,
-              action: action.ActionID,
-              isActive: false,
-            });
-          }
         }
       });
-      this.departmentForm.actions = finalActions;
-      console.log(this.departmentForm, "TEST");
+
+      const roleData = {
+        role_desc: this.roleName,
+        user_id: 12,
+        actions: finalActions
+      };
+
       await axios({
         method: "PUT",
-        url: `${this.$axios.defaults.baseURL}/admin/departments/update`,
-        data: {
-          departmentForm: { ...this.departmentForm },
-        },
+        url: `${this.$axios.defaults.baseURL}/admin/roles/update/${this.roleForm.id}`,
+        data: roleData,
         headers: {
           authorization: "Bearer " + localStorage.token,
         },
@@ -596,22 +614,32 @@ export default {
       this.showAlert("Updated successfully", "success");
     },
 
-    async saveNewRole() {
-      this.departmentForm.department_name = this.departmentName;
-      this.departmentForm.user_id = "77";
-
-      await this.selectedAction.forEach((selected) => {
-        this.departmentForm.actions.push(
-          this.actions.find((action) => action.ActionID === selected)
-        );
+   async saveNewRole() {
+      const finalActions = [];
+      
+      this.actions.forEach((action) => {
+        if (
+          this.selectedAction.find(
+            (checkedAction) => checkedAction === action.user_actions_id
+          )
+        ) {
+          finalActions.push({
+            user_actions_id: action.user_actions_id,
+            is_active: 1, 
+          });
+        }
       });
+
+      const roleData = {
+        role_desc: this.roleName,
+        user_id: 12,
+        actions: finalActions
+      };
 
       await axios({
         method: "POST",
-        url: `${this.$axios.defaults.baseURL}/admin/departments/add`,
-        data: {
-          departmentForm: { ...this.departmentForm },
-        },
+        url: `${this.$axios.defaults.baseURL}/admin/roles/insert`,
+        data: roleData,
         headers: {
           authorization: "Bearer " + localStorage.token,
         },
@@ -634,8 +662,8 @@ export default {
       this.resetFields();
     },
     resetFields() {
-      this.departmentForm = [];
-      this.departmentName = "";
+      this.roleForm = [];
+      this.roleName = "";
       this.selectedAction = [];
     },
   },

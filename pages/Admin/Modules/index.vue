@@ -15,7 +15,7 @@
       <b-card class="card-shadow">
         <b-form-group>
           <label style="font-size: 13px">Menu Description</label>
-          <b-form-input v-model="moduleData.menu_description"></b-form-input>
+          <b-form-input v-model="moduleData.module_desc"></b-form-input>
         </b-form-group>
       </b-card>
       <template v-slot:modal-footer>
@@ -43,7 +43,7 @@
       <b-card class="card-shadow">
         <b-form-group>
           <label style="font-size: 13px">Menu Description</label>
-          <b-form-input v-model="moduleData.menu_description"></b-form-input>
+          <b-form-input v-model="moduleData.module_desc"></b-form-input>
         </b-form-group>
       </b-card>
       <template v-slot:modal-footer>
@@ -59,13 +59,11 @@
 
     <b-row>
       <b-col>
-        <h5 class="ml-4" style="font-weight: bolder; font-family: font_B">
-          <font-awesome-icon
-            icon="circle-info"
-            class="viewIcon mr-2"
-            small
-          />Main Menu Information
-        </h5>
+        <nav class="breadcrumb-container ml-4">
+          <a href="#" class="breadcrumb-link">Home</a>
+          <span class="breadcrumb-separator">▶</span>
+          <span class="breadcrumb-current">Modules</span>
+        </nav>
         <b-card class="cardProfile mainContent">
           <b-row>
             <b-col cols="8">
@@ -97,14 +95,14 @@
                 size="md"
                 @click="$bvModal.show('bv-modal-addMod')"
               >
-                <font-awesome-icon icon="plus" class="icon" />Add New Menu
+                <font-awesome-icon icon="plus" class="icon" />Add New Module
               </b-button>
             </b-col>
           </b-row>
           <b-table
             head-variant="light"
             style="font-size: 12px"
-            class="my-3"
+            class="my-3 tableAsset"
             show-empty
             small
             :current-page="currentPage"
@@ -113,7 +111,7 @@
             :items="filteredModules"
             :fields="fieldsModules"
           >
-            <template v-slot:cell(actions)="row">
+           <template v-slot:cell(actions)="row">
               <button
                 id="editAddress"
                 class="editBtn"
@@ -127,16 +125,8 @@
                   small
                 />
               </button>
-              <button
-                id="deleteAddress"
-                class="deleteBtn"
-                @click="deleteItem(row.item)"
-                v-b-tooltip.noninteractive.hover
-                title="Delete"
-              >
-                <font-awesome-icon icon="trash" class="viewIcon" small />
-              </button>
             </template>
+            
             <template v-slot:table-caption>
               <b-row align-h="end">
                 <b-col cols="6">{{ bottomLabel }}</b-col>
@@ -181,10 +171,9 @@ import moment from "moment";
 
 export default {
   components: {},
-  async created() {},
   middleware: "pageValidator",
   meta: {
-    access: { right: "View MainMenu" },
+    access: { right: "View Modules" },
   },
   data() {
     return {
@@ -200,14 +189,14 @@ export default {
       },
 
       moduleData: {
-        MenuID: null,
-        menu_description: null,
+        module_id: null,
+        module_desc: null,
       },
 
       fieldsModules: [
         {
-          key: "MenuDescription",
-          label: "Menu Description",
+          key: "module_desc",
+          label: "Module Name",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
@@ -268,7 +257,7 @@ export default {
       try {
         const res = await axios({
           method: "GET",
-          url: `${this.$axios.defaults.baseURL}/admin/main-menu/get-all`,
+          url: `${this.$axios.defaults.baseURL}/admin/modules/get-all`,
         });
         this.modules = res.data;
       } catch (error) {
@@ -281,9 +270,9 @@ export default {
       try {
         await axios({
           method: "POST",
-          url: `${this.$axios.defaults.baseURL}/admin/main-menu/add`,
+          url: `${this.$axios.defaults.baseURL}/admin/modules/insert`,
           data: {
-            menu_description: this.moduleData.menu_description,
+            module_description: this.moduleData.module_desc,
           },
         });
         await this.getModules();
@@ -296,16 +285,17 @@ export default {
     },
     openEditModule(data) {
       this.moduleData = data;
-      this.moduleData.menu_description = data.MenuDescription;
+      console.log(data)
+      this.moduleData.module_desc = data.module_desc;
       this.$bvModal.show("bv-modal-editMod");
     },
     async editModule() {
       try {
         await axios({
           method: "PUT",
-          url: `${this.$axios.defaults.baseURL}/admin/main-menu/update/${this.moduleData.MenuID}`,
+          url: `${this.$axios.defaults.baseURL}/admin/modules/update/${this.moduleData.module_id}`,
           data: {
-            menu_description: this.moduleData.menu_description,
+            module_description: this.moduleData.module_desc,
           },
         });
         await this.getModules();

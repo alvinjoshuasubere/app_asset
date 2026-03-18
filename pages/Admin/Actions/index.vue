@@ -16,14 +16,14 @@
       <b-card class="card-shadow">
         <b-form-group>
           <label style="font-size: 13px">Menu Description</label>
-          <b-form-select id="select-module-act" v-model="selectedModule">
+          <b-form-select size="sm" id="select-module-act" v-model="selectedModule">
             <option disabled value="">Please select a menu</option>
             <option
               v-for="(dModule, i) in modulesList"
               :key="i"
-              :value="dModule.MenuID"
+              :value="dModule.module_id"
             >
-              {{ dModule.MenuDescription }}
+              {{ dModule.module_desc }}
             </option>
           </b-form-select>
 
@@ -73,6 +73,7 @@
           ></b-form-input>
           <label style="font-size: 13px" class="mt-2">Status</label>
           <b-form-select
+            size="sm"
             id="select-status-act"
             type="text"
             v-model="actionsData.IsActive"
@@ -95,13 +96,11 @@
     <!-- End Edit Modal -->
     <b-row>
       <b-col>
-        <h5 class="ml-4" style="font-weight: bolder; font-family: font_B">
-          <font-awesome-icon
-            icon="circle-info"
-            class="viewIcon mr-2"
-            small
-          />Actions Information
-        </h5>
+        <nav class="breadcrumb-container ml-4">
+          <a href="#" class="breadcrumb-link">Home</a>
+          <span class="breadcrumb-separator">▶</span>
+          <span class="breadcrumb-current">Actions</span>
+        </nav>
         <b-card class="cardProfile mainContent">
           <b-row>
             <b-col cols="8">
@@ -140,7 +139,7 @@
           <b-table
             head-variant="light"
             style="font-size: 12px"
-            class="my-3"
+            class="my-3 tableAsset"
             show-empty
             small
             :current-page="currentPage"
@@ -149,14 +148,26 @@
             :items="filteredActions"
             :fields="fieldsActions"
           >
-            <template v-slot:cell(IsActive)="row">
-              <div class="badge-font-size" v-if="row.item.IsActive">
-                <b-badge class="mr-2" pill variant="success">&nbsp;</b-badge
-                >Active
-              </div>
-              <div class="badge-font-size" v-else>
-                <b-badge class="mr-2" pill variant="danger">&nbsp;</b-badge
-                >Inactive
+            <template v-slot:cell(is_active)="row">
+              <div class="d-flex align-items-center justify-content-center">
+                <div
+                  class="rounded-circle d-flex align-items-center justify-content-center"
+                  :class="row.item.is_active ? 'bg-success' : 'bg-danger'"
+                  style="width: 20px; height: 20px;"
+                > 
+                  <font-awesome-icon
+                    icon="check"
+                    class="text-white"
+                    style="font-size: 12px;"
+                    v-if="row.item.is_active"
+                  />
+                  <font-awesome-icon
+                    icon="times"
+                    class="text-white"
+                    style="font-size: 12px;"
+                    v-else
+                  />
+                </div>
               </div>
             </template>
             <template v-slot:cell(actions)="row">
@@ -172,15 +183,6 @@
                   class="viewIcon"
                   small
                 />
-              </button>
-              <button
-                id="deleteAddress"
-                class="deleteBtn"
-                @click="deleteItem(row)"
-                v-b-tooltip.noninteractive.hover
-                title="Delete"
-              >
-                <font-awesome-icon icon="trash" class="viewIcon" small />
               </button>
             </template>
             <template v-slot:table-caption>
@@ -225,7 +227,6 @@ import moment from "moment";
 
 export default {
   components: {},
-  async created() {},
   middleware: "pageValidator",
   meta: {
     access: { right: "View Actions" },
@@ -253,22 +254,22 @@ export default {
       modulesList: [],
       fieldsActions: [
         {
-          key: "ActionDescription",
+          key: "action_desc",
           label: "Action Description",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
-          key: "MenuDescription",
-          label: "Menu Description",
+          key: "module_desc",
+          label: "Module Description",
           sortable: true,
           sortDirection: "desc",
-          class: "text-center",
+          class: "text-left",
         },
 
         {
-          key: "IsActive",
+          key: "is_active",
           label: "Status",
           class: "text-center",
         },
@@ -332,7 +333,7 @@ export default {
       try {
         const res = await axios({
           method: "GET",
-          url: `${this.$axios.defaults.baseURL}/admin/main-menu/get-all`,
+          url: `${this.$axios.defaults.baseURL}/admin/modules/get-all`,
         });
         this.isBusy = false;
         this.modulesList = res.data;
@@ -362,12 +363,12 @@ export default {
       try {
         await axios({
           method: "POST",
-          url: `${this.$axios.defaults.baseURL}/admin/actions/add`,
+          url: `${this.$axios.defaults.baseURL}/admin/actions/insert`,
           data: {
-            user_id: "77",
-            mainmenu_id: this.selectedModule,
-            isActive: true,
             action_description: this.actionsData.action_description,
+            module_id: this.selectedModule,
+            is_active: 1,
+            user_id: 12
           },
         });
         await this.getActions();
@@ -378,11 +379,12 @@ export default {
       }
     },
     openEditAction(data) {
-      this.actionsData.id = data.ActionID;
-      this.actionsData.action_description = data.ActionDescription;
-      this.actionsData.MenuDescription = data.MenuDescription;
-      this.actionsData.mainmenu_id = data.MainMenuID;
-      this.actionsData.IsActive = data.IsActive;
+      console.log(data);
+      this.actionsData.id = data.user_actions_id;
+      this.actionsData.action_description = data.action_desc;
+      this.actionsData.MenuDescription = data.module_desc;
+      this.actionsData.mainmenu_id = data.module_id;
+      this.actionsData.IsActive = data.is_active;
       this.$bvModal.show("bv-modal-editAct");
     },
     async editAction() {
@@ -391,10 +393,10 @@ export default {
           method: "PUT",
           url: `${this.$axios.defaults.baseURL}/admin/actions/update/${this.actionsData.id}`,
           data: {
-            user_id: "77",
-            mainmenu_id: this.actionsData.mainmenu_id,
-            isActive: this.actionsData.IsActive,
             action_description: this.actionsData.action_description,
+            module_id: this.actionsData.mainmenu_id,
+            is_active: this.actionsData.IsActive,
+            user_id: 12
           },
         });
         await this.getActions();

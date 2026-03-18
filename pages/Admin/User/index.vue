@@ -138,6 +138,15 @@
         </h6>
       </div>
       <template v-slot:modal-footer>
+        
+        <b-button
+          id="close_pos"
+          class="greyBtn"
+          size="sm"
+          style="font-size: 13px"
+          @click="cancelReset()"
+          >No</b-button
+        >
         <b-button
           id="add_pos"
           size="sm"
@@ -147,26 +156,16 @@
           @click="resetPassword"
           >Yes</b-button
         >
-        <b-button
-          id="close_pos"
-          class="greyBtn"
-          size="sm"
-          style="font-size: 13px"
-          @click="cancelReset()"
-          >No</b-button
-        >
       </template>
     </b-modal>
     <!-- end reset modal -->
     <b-row>
       <b-col>
-        <h5 class="ml-4" style="font-weight: bolder; font-family: font_B">
-          <font-awesome-icon
-            icon="circle-info"
-            class="viewIcon mr-2"
-            small
-          />Users Information
-        </h5>
+         <nav class="breadcrumb-container ml-4">
+          <a href="#" class="breadcrumb-link">Home</a>
+          <span class="breadcrumb-separator">▶</span>
+          <span class="breadcrumb-current">Users</span>
+        </nav>
         <b-card class="cardProfile mainContent">
           <b-row>
             <b-col cols="8">
@@ -204,8 +203,8 @@
           </b-row>
           <b-table
             head-variant="light"
+            class="tableAsset mt-4"
             style="font-size: 12px"
-            class="my-3"
             show-empty
             small
             :current-page="currentPage"
@@ -215,41 +214,25 @@
             :fields="fieldsUsers"
           >
             <template v-slot:cell(actions)="row">
-              <button
-                id="editAddress"
-                class="editBtn"
-                @click="editUserModal(row)"
-                v-b-tooltip.noninteractive.hover
-                title="Edit"
-              >
-                <font-awesome-icon
-                  icon="pen-to-square"
-                  class="viewIcon"
-                  small
-                />
-              </button>
-              <!-- <button
-                id="deleteUser"
-                class="deleteBtn"
-                @click="deleteItem(row)"
-                v-b-tooltip.noninteractive.hover
-                title="Delete"
-              >
-                <font-awesome-icon icon="trash" class="viewIcon" small />
-              </button> -->
-              <button
-                id="resetPass"
-                class="resetBtn"
-                @click="resetPass(row)"
-                v-b-tooltip.noninteractive.hover
-                title="Reset Password"
-              >
-                <font-awesome-icon
-                  icon="rotate-right"
-                  small
-                  class="disapproveIcon"
-                />
-              </button>
+              <b-dropdown class="dropdownBtn" right variant="link" no-caret>
+                <template #button-content>
+                  <font-awesome-icon icon="bars" />
+                </template>
+                <b-dropdown-header class="dropdown-header">Actions</b-dropdown-header>
+                <b-dropdown-item-button @click="editUserModal(row)">
+                  <font-awesome-icon icon="pen-to-square" class="viewIcon mr-2" small />Edit User
+                </b-dropdown-item-button>
+                <b-dropdown-item-button @click="resetPass(row)">
+                  <font-awesome-icon icon="rotate-right" class="viewIcon mr-2" small />Reset Password
+                </b-dropdown-item-button>
+              </b-dropdown>
+            </template>
+            <template v-slot:cell(IsActive)="row">
+              <b-form-checkbox 
+                :checked="row.item.IsActive" 
+                disabled
+                size="sm"
+              ></b-form-checkbox>
             </template>
             <template v-slot:table-caption>
               <b-row align-h="end">
@@ -328,36 +311,36 @@ export default {
       },
       fieldsUsers: [
         {
-          key: "FullName",
+          key: "AccountName",
           label: "FullName",
           sortable: true,
           sortDirection: "desc",
           class: "text-left",
         },
         {
-          key: "LastName",
-          label: "Last Name",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-center",
-        },
-        {
-          key: "FirstName",
-          label: "First Name",
-          sortable: true,
-          sortDirection: "desc",
-          class: "text-center",
-        },
-        {
-          key: "UserCode",
+          key: "Username",
           label: "Username",
           sortable: true,
           sortDirection: "desc",
           class: "text-center",
         },
         {
-          key: "DepartmentDescription",
-          label: "Department",
+          key: "Role",
+          label: "Role",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-center",
+        },
+        {
+          key: "OfficeName",
+          label: "Office",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-center",
+        },
+        {
+          key: "IsActive",
+          label: "Active",
           sortable: true,
           sortDirection: "desc",
           class: "text-center",
@@ -424,13 +407,14 @@ export default {
       try {
         const res = await axios({
           method: "GET",
-          url: `${this.$axios.defaults.baseURL}/admin/users/get-all`,
+          url: `${this.$axios.defaults.baseURL}/admin/user-accounts/get-all?text=${this.filter || ''}&is_active=1`,
           headers: {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "GET",
           },
         });
         this.users = res.data;
+        console.log(res.data)
         this.showLoading = false;
       } catch (error) {
         this.showLoading = false;
@@ -456,12 +440,17 @@ export default {
         this.isBusy = false;
       }
     },
+    resetPass(data) {
+      this.usersData.UserId = data.item.UserId;
+      console.log(this.usersData.UserId);
+      this.$bvModal.show("bv-modal-reset");
+    },
     async resetPassword() {
       try {
         this.showLoading = true;
         const res = await axios({
           method: "PUT",
-          url: `${this.$axios.defaults.baseURL}/admin/users/to-reset-password/${this.usersData.UserId}`,
+          url: `${this.$axios.defaults.baseURL}/admin/user-accounts/to-reset-password/${this.usersData.UserId}`,
         });
         console.log(res);
         this.showLoading = false;

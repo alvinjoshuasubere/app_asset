@@ -69,15 +69,17 @@
             <b-col cols="8">
               <b-form-group class="searchbar" label-size="sm">
                 <b-input-group size="md">
-                  <b-form-input
-                    type="search"
-                    id="inputSearch"
-                    class="searchbar no-outline"
-                    placeholder="Type to Search"
-                    v-model="filterModules"
-                  ></b-form-input>
+                   <b-form-input
+                      v-model="filterModules"
+                      type="search"
+                      id="filterEmpInput"
+                      class="searchbar"
+                      placeholder="Type to Search"
+                      debounce="500"
+                    ></b-form-input>
                   <b-input-group-append>
                     <b-button
+                      size="sm"
                       class="buttonClearSearch"
                       id="buttonClearSearch"
                       :disabled="!filterModules"
@@ -90,9 +92,8 @@
             </b-col>
             <b-col cols="4" class="text-right">
               <b-button
-                style="background: #00488e; border: none; font-size: 13px"
-                class="ml-4"
-                size="md"
+                 class="defaultBtn"
+                size="sm"
                 @click="$bvModal.show('bv-modal-addMod')"
               >
                 <font-awesome-icon icon="plus" class="icon" />Add New Module

@@ -58,6 +58,7 @@
                 v-for="(adminsubmenu, index) in adminsubmenus"
                 :key="index"
                 class="adminSubMenusStyle"
+                v-if="hasAccess(adminsubmenu.action)"
               >
                 <router-link :id="'sb-' + index" :to="adminsubmenu.path">
                   <b-row>
@@ -114,6 +115,7 @@
                 v-for="(file, index) in files"
                 :key="index"
                 class="adminSubMenusStyle"
+                v-if="hasAccess(file.action)"
               >
                 <router-link :id="'sb-' + index" :to="file.path">
                   <b-row>
@@ -130,7 +132,8 @@
               </li>
             </b-collapse>
           </li>
-          <li v-for="(link, index) in links" :key="index">
+          <hr style="background-color: white;">
+          <li v-for="(link, index) in links" :key="index" v-if="hasAccess(link.action)">
             <router-link class="my-1" :id="'sb1-' + index" :to="link.path">
               <b-row>
                 <b-col cols="2">
@@ -146,7 +149,7 @@
           </li>
         </ul>
       </div>
-      <footer class="footerStyle">Copyright &copy; 2024 Koronadal City</footer>
+      <footer class="footerStyle">Copyright &copy; 2026 Koronadal City</footer>
     </nav>
 
     <!-- HEADER NAVIGATION BAR-->
@@ -175,9 +178,9 @@
           </b-row>
         </span>
         <div class="userGuideBtnContainer" v-b-tooltip.hover title="User Guide">
-          <button @click="openPDF" class="userGuideBtn" variant="none">
+          <!-- <button @click="openPDF" class="userGuideBtn" variant="none">
             <i class="fas fa-question userGuideIcon"></i>
-          </button>
+          </button> -->
         </div>
         <b-badge
           v-if="notifCounter == 0"
@@ -206,33 +209,36 @@
           <b-modal
             id="modal-logout"
             v-model="show"
-            header-bg-variant="info"
-            header-text-variant="light"
-            hide-header-close
+            header-class="assetColor"
             title="Do you really wish to logout?"
+            size="md"
+            no-close-on-backdrop
+            @close="show = false"
           >
-            <p>
+            <small>
               Any pending changes will not be saved... Press Logout to confirm
               or press esc to cancel.
-            </p>
+            </small>
             <template #modal-footer>
               <div class="w-100">
-                <b-button
-                  variant="secondary"
-                  size="sm"
-                  class="float-right greyBtn"
-                  @click="show = false"
-                >
-                  Cancel
-                </b-button>
-                <b-button
+                 <b-button
                   variant="primary"
                   size="sm"
-                  class="float-right primaryBtn mr-2"
+                  class="float-right primaryBtn"
                   @click="logout"
                 >
                   Logout
                 </b-button>
+
+                <b-button
+                  variant="secondary"
+                  size="sm"
+                  class="float-right greyBtn mr-2"
+                  @click="show = false"
+                >
+                  Cancel
+                </b-button>
+               
               </div>
             </template>
           </b-modal>
@@ -251,74 +257,7 @@ import axios from "axios";
 import moment from "moment";
 
 export default {
-  async created() {
-    // notifs
-    // await this.connectSocket();
-    // this.role = localStorage.role;
-    // if (localStorage.modules) {
-    //   this.modules = JSON.parse(localStorage.modules);
-    // }
-    //loop adminmenus
-    // for (let i = 0; i < this.adminsubmenus.length; i++) {
-    //   //loop through modules localstorage
-    //   for (let i2 = 0; i2 < this.modules.length; i2++) {
-    //     for (let i3 = 0; i3 < this.modules[i2].actions.length; i3++) {
-    //       if (
-    //         this.adminsubmenus[i].action ===
-    //           this.modules[i2].actions[i3].actionname &&
-    //         this.modules[i2].modulestatus === "active" &&
-    //         this.modules[i2].actions[i3].actionstatus === "active"
-    //       ) {
-    //         if (localStorage.role == "supervisor") {
-    //           this.activeadminsubmenus.push(this.adminsubmenus[i]);
-    //           if (this.adminsubmenus[i].description == "Roles & Access") {
-    //             this.activeadminsubmenus.pop(this.adminsubmenus[i]);
-    //           }
-    //         } else {
-    //           this.activeadminsubmenus.push(this.adminsubmenus[i]);
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-    //loop menus
-    // for (let i = 0; i < this.links.length; i++) {
-    //loop through modules localstorage
-    //   for (let i2 = 0; i2 < this.modules.length; i2++) {
-    //     for (let i3 = 0; i3 < this.modules[i2].actions.length; i3++) {
-    //       if (
-    //         this.links[i].action === this.modules[i2].actions[i3].actionname &&
-    //         this.modules[i2].modulestatus === "active" &&
-    //         this.modules[i2].actions[i3].actionstatus === "active"
-    //       ) {
-    //         // console.log(this.links[i], "LNKS");
-    //         // this condition let have the access rights but should not display on sidebar
-    //         if (localStorage.role == "accounting" || localStorage.role == "revive") {
-    //           this.activelinks.push(this.links[i]);
-    //           if (this.links[i].description == "Trucks") {
-    //             this.activelinks.pop(this.links[i]);
-    //           } else if (this.links[i].description == "Drivers") {
-    //             this.activelinks.pop(this.links[i]);
-    //           } else if (this.links[i].description == "Transactions") {
-    //             this.activelinks.pop(this.links[i]);
-    //           }
-    //         } else if (localStorage.role == "supervisor") {
-    //           this.activelinks.push(this.links[i]);
-    //           if (this.links[i].description == "Trucks") {
-    //             this.activelinks.pop(this.links[i]);
-    //           } else if (this.links[i].description == "Drivers") {
-    //             this.activelinks.pop(this.links[i]);
-    //           } else if (this.links[i].description == "Transactions") {
-    //             this.activelinks.pop(this.links[i]);
-    //           }
-    //         } else {
-    //           this.activelinks.push(this.links[i]);
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-  },
+  
   data() {
     return {
       disp: false,
@@ -335,31 +274,31 @@ export default {
           path: "/admin/modules",
           icon: "cubes",
           description: "Modules",
-          action: "view modules",
+          action: "View Modules",
         },
         {
           path: "/admin/actions",
           icon: "list-check",
           description: "Actions",
-          action: "view actions",
+          action: "View Actions",
         },
         {
           path: "/admin/accessrights",
           icon: "fingerprint",
           description: "Roles & Access",
-          action: "view roles",
+          action: "View Roles",
         },
         {
           path: "/admin/user",
           icon: "id-badge",
           description: "Users",
-          action: "view users",
+          action: "View Users",
         },
         {
           path: "/admin/activitylogs",
           icon: "chart-line",
           description: "Activity Logs",
-          action: "view modules",
+          action: "View Activity Logs",
         },
       ],
       files: [
@@ -367,31 +306,31 @@ export default {
           path: "/file_maintenance/accounts",
           icon: "file-invoice",
           description: "Accounts",
-          action: "View list of accounts",
+          action: "View Accounts",
         },
         {
           path: "/file_maintenance/subcategory",
           icon: "border-all",
           description: "Subcategory",
-          action: "View list of subcategory",
+          action: "View Subcategory",
         },
         {
           path: "/file_maintenance/suppliers",
           icon: "people-group",
           description: "Suppliers",
-          action: "View list of suppliers",
+          action: "View Suppliers",
         },
         {
           path: "/file_maintenance/manufacturers",
           icon: "chart-simple",
           description: "Manufacturers",
-          action: "View list of manufacturers",
+          action: "View Manufacturers",
         },
         {
           path: "/file_maintenance/attachments",
           icon: "image",
           description: "Attachments",
-          action: "View list of attachments",
+          action: "View Attachments",
         },
       ],
       links: [
@@ -399,25 +338,25 @@ export default {
           path: "/dashboard",
           icon: "magnifying-glass",
           description: "Dashboard",
-          action: "add transaction",
+          action: "View Dashboard",
         },
         {
           path: "/assets",
           icon: "desktop",
           description: "Assets",
-          action: "view assets",
+          action: "View Assets",
         },
         {
           path: "/maintenance",
           icon: "wrench",
           description: "Maintenance",
-          action: "view maintenance",
+          action: "View Maintenance",
         },
         {
           path: "/reports",
           icon: "file",
           description: "Reports",
-          action: "view reports",
+          action: "View Reports",
         },
       ],
 
@@ -428,7 +367,56 @@ export default {
     };
   },
   mounted() {},
+  async created() {
+    if (localStorage.accessRights) {
+      const access = JSON.parse(localStorage.accessRights);
+      const actions = access.flatMap((menu) =>
+        menu.actions.map((action) => action.actionname)
+      );
+
+      // Filter and assign data based on actions
+      this.adminsubmenus = this.adminsubmenus.filter((submenu) =>
+        actions.includes(submenu.action)
+      );
+
+      this.files = this.files.filter((file) => actions.includes(file.action));
+
+      // Filter main links based on allowed actions
+      this.links = this.links.filter((link) => actions.includes(link.action));
+    } else {
+      // If 'menus' doesn't exist, hide all sections
+      this.adminsubmenus = [];
+      this.files = [];
+      this.links = [];
+    }
+  },
   methods: {
+    hasAccess(actionName) {
+      try {
+        const accessRights = localStorage.getItem('accessRights');
+        if (!accessRights) return false;
+        
+        const userAccessRights = JSON.parse(accessRights);
+        
+        // Check through modules and their actions
+        for (const module of userAccessRights) {
+          if (module.actions && Array.isArray(module.actions)) {
+            const hasAction = module.actions.some(action => 
+              action.actionname === actionName ||
+              action.action_description === actionName ||
+              action.right_name === actionName ||
+              action.right === actionName ||
+              action === actionName
+            );
+            if (hasAction) return true;
+          }
+        }
+        return false;
+      } catch (error) {
+        console.error('Error checking access rights:', error);
+        return false;
+      }
+    },
     notifClicked(data) {
       localStorage.setItem("request_id", data.request_id);
       // setTimeout(this.$root.$emit('selectNotiRow'), 100)
@@ -502,15 +490,16 @@ export default {
       this.$router.push(`/`);
     },
     openPDF() {
-      if (localStorage.role.toLowerCase().includes("admin")) {
+      const role = localStorage.role ? localStorage.role.toLowerCase() : '';
+      if (role.includes("admin")) {
         window.open("/User_Guide_Admin_1.6.pdf");
-      } else if (localStorage.role.toLowerCase().includes("controller")) {
+      } else if (role.includes("controller")) {
         window.open("/User_Guide_Controller_1.6.pdf");
-      } else if (localStorage.role.toLowerCase().includes("supervisor")) {
+      } else if (role.includes("supervisor")) {
         window.open("/User_Guide_Supervisor_1.6.pdf");
-      } else if (localStorage.role.toLowerCase().includes("accounting")) {
+      } else if (role.includes("accounting")) {
         window.open("/User_Guide_Accounting_1.6.pdf");
-      } else if (localStorage.role.toLowerCase().includes("revive")) {
+      } else if (role.includes("revive")) {
         window.open("/User_Guide_Revive.pdf");
       }
     },

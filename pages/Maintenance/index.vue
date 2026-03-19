@@ -10,9 +10,10 @@ export default {
   components: {
     Maintenance,
   },
-  // meta: {
-  //   access: { right: "view transactions" }
-  // },
+  middleware: "pageValidator",
+  meta: {
+    access: { right: "View Maintenance" }
+  },
   head() {
     return {
       meta: [

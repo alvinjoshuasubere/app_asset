@@ -115,6 +115,7 @@
                   ></b-form-input>
                   <b-input-group-append>
                     <b-button
+                      size="sm"
                       class="buttonClearSearch"
                       id="buttonClearSearch"
                       :disabled="!filterActions"
@@ -127,9 +128,8 @@
             </b-col>
             <b-col cols="4" class="text-right">
               <b-button
-                style="background: #00488e; border: none; font-size: 13px"
-                class="ml-4"
-                size="md"
+                class="defaultBtn"
+                size="sm"
                 @click="$bvModal.show('bv-modal-addAct')"
               >
                 <font-awesome-icon icon="plus" class="icon" />Add New Action

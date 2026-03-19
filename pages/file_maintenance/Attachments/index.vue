@@ -10,9 +10,10 @@ export default {
   components: {
     Attachments,
   },
-  // meta: {
-  //   access: { right: "view transactions" }
-  // },
+  middleware: "pageValidator",
+  meta: {
+    access: { right: "View Attachments" }
+  },
   head() {
     return {
       meta: [

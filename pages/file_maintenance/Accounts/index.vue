@@ -10,9 +10,10 @@ export default {
   components: {
     Accounts,
   },
-  // meta: {
-  //   access: { right: "view transactions" }
-  // },
+  middleware: "pageValidator",
+  meta: {
+    access: { right: "View Accounts" }
+  },
   head() {
     return {
       meta: [

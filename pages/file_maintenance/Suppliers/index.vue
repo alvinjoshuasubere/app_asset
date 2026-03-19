@@ -10,9 +10,10 @@ export default {
   components: {
     Suppliers,
   },
-  // meta: {
-  //   access: { right: "view transactions" }
-  // },
+  middleware: "pageValidator",
+  meta: {
+    access: { right: "View Suppliers" }
+  },
   head() {
     return {
       meta: [

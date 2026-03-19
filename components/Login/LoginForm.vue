@@ -17,7 +17,9 @@
             placeholder="Enter your username"
             v-model="user.username"
             @keyup.enter="login()"
-            :input-attrs="{ autocomplete: true }"
+            autocomplete="username"
+            name="username"
+            id="username"
           />
 
           <div class="passCons">
@@ -27,6 +29,9 @@
               placeholder="Enter the given password"
               v-model="user.pass"
               @keyup.enter="login()"
+              autocomplete="current-password"
+              name="password"
+              id="password"
             />
             <div class="eye">
               <font-awesome-icon @click="show()" :icon="icn">
@@ -46,26 +51,21 @@
             &copy;{{ year }} City Government of Koronadal
           </div>
         </div>
-        <div>
-          <b-alert
-            :show="alert.showAlert"
-            :variant="alert.variant"
-            @dismissed="alert.showAlert = null"
-          >
-            <fa
-              :icon="
-                alert.variant == 'success'
-                  ? 'check-circle'
-                  : 'exclamation-triangle'
-              "
-              class="mr-1"
-              style="font-size: 20px"
-            />
-            {{ alert.message }}
-          </b-alert>
-        </div>
+       
       </div>
     </div>
+    <b-alert
+      :show="alert.showAlert"
+      dismissible
+      :variant="alert.variant"
+      @dismissed="alert.showAlert = null"
+    >
+      <font-awesome-icon
+        :icon="alert.variant == 'success' ? 'circle-check' : 'circle-exclamation'"
+        class="mr-1 alert-font"
+      />
+      {{ alert.message }}
+    </b-alert>
   </div>
 </template>
 
@@ -86,8 +86,8 @@ export default {
       },
       alert: {
         showAlert: 0,
-        variant: "success",
-        message: "The username and / or password is Incorrect",
+        variant: "",
+        message: "",
       },
     };
   },
@@ -103,6 +103,50 @@ export default {
     },
   },
   methods: {
+    showAlert(message, variant) {
+      this.alert = { showAlert: 3, variant, message };
+    },
+    async login() {
+      try {
+        const res = await axios({
+          method: "PUT",
+          url: `${this.$axios.defaults.baseURL}/admin/user-accounts/login`,
+          data: {
+            user_name: this.user.username,
+            password: this.user.pass
+          },
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        console.log(res.data)
+        // Store token and user data
+        if (res.data) {
+          localStorage.setItem('token', res.data.token || '');
+          localStorage.setItem('user', JSON.stringify(res.data.firstName ? res.data.firstName + ' ' + (res.data.lastName || '') : ''));
+          localStorage.setItem('accessRights', JSON.stringify(res.data.modules || []));
+          localStorage.setItem('id', res.data.id || '');
+          
+          // Check if user needs to be redirected to First_Login
+          if (res.data.isToReset == true) {
+            localStorage.id = res.data.id;
+            this.$router.push(`/First_Login`);
+            return;
+          }
+        }
+        
+        // Show success message and redirect
+        this.showAlert("Login successful! Redirecting...", "success");
+        
+        // Redirect to assets page
+        setTimeout(() => {
+          this.$router.push('/assets');
+        }, 1000);
+        
+      } catch (error) {
+        this.showAlert("The username and / or password is Incorrect", "danger");
+      }
+    },
     show() {
       this.pass = !this.pass;
       if (this.pass == true) {

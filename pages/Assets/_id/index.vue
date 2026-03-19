@@ -14,8 +14,8 @@
             class="details-row"
             v-for="(value, label) in {
               'Account Title': asset.accountTitle,
-              Subcategory: asset.subcategory,
-              Description: asset.description,
+              'Subcategory': asset.subcategory,
+              'Description': asset.description,
               'Property No.': asset.propertyNo,
               'Unit Cost': 'PHP ' + asset.unitCost,
               'Date Acquired': asset.dateAcquired,
@@ -73,6 +73,7 @@
 
 <script>
 import Loading from "@/components/LoadingOverlay/Loading";
+import moment from "moment";
 export default {
   layout: "sidebar",
   components: {
@@ -94,24 +95,86 @@ export default {
   },
   data() {
     return {
+      showLoading : false,
       asset: {
-        accountTitle: "ICT Equipment",
-        subcategory: "Printer",
-        description: "EPSON L3550 WIFI AIO Ink Tank Printer",
-        propertyNo: "2025-01-030-0602-1022",
-        unitCost: "13,545.00",
-        dateAcquired: "May 06, 2025",
+        accountTitle: '',
+        subcategory: '',
+        description: '',
+        propertyNo: '',
+        unitCost: '',
+        dateAcquired: '',
       },
       assignment: {
-        assignedTo: "MARLOU SOMODIO",
-        userEmployee: "KENJESAN PARLERO",
-        location: "City Administrator's Office | 3rd Floor, Main Building",
+        assignedTo: '',
+        userEmployee: '',
+        location: '',
       },
       maintenance: [],
     };
   },
-  async created() {},
-  methods: {},
+  async created() {
+    await this.getAssetDetails();
+  },
+  methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
+    async getAssetDetails() {
+      this.showLoading = true;
+      try {
+        const res = await this.$axios.get(
+          `${this.$axios.defaults.baseURL}/items/get-filter?text=${this.$route.params.id}`
+        );
+        const assetData = res.data[0];
+        console.log(assetData)
+        
+        if (assetData) {
+          this.asset = {
+            accountTitle: assetData.AccountTitle || 'N/A',
+            subcategory: assetData.Subcategory || 'N/A',
+            description: assetData.Description || 'N/A',
+            propertyNo: assetData.PropertyNo || 'N/A',
+            unitCost: assetData.UnitCost ? 'PHP ' + parseFloat(assetData.UnitCost).toLocaleString() : 'N/A',
+            dateAcquired: assetData.DateAcquired ? this.formatDate(assetData.DateAcquired) : 'N/A'
+          };
+          
+          this.assignment = {
+            assignedTo: assetData.EmployeeAssigned || 'N/A',
+            userEmployee: assetData.EmployeeAssigned || 'N/A',
+            location: assetData.Location || 'N/A'
+          };
+          
+          // const maintenanceRes = await this.$axios.get(
+          //   `${this.$axios.defaults.baseURL}/maintenance/get-by-account-code?accountCode=${this.$route.params.id}`
+          // );
+          // this.maintenance = maintenanceRes.data || [];
+        } else {
+          // Handle case where asset is not found
+          this.asset = {
+            accountTitle: 'N/A',
+            subcategory: 'N/A',
+            description: 'N/A',
+            propertyNo: 'N/A',
+            unitCost: 'N/A',
+            dateAcquired: 'N/A'
+          };
+          this.assignment = {
+            assignedTo: 'N/A',
+            userEmployee: 'N/A',
+            location: 'N/A'
+          };
+          this.maintenance = [];
+        }
+      } catch (error) {
+        console.error('Failed to load asset details:', error);
+      } finally {
+        this.showLoading = false;
+      }
+    },
+    formatDate(date) {
+      return moment(date).format("MMMM D, YYYY");
+    },
+  },
 };
 </script>
 

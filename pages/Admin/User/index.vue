@@ -15,45 +15,62 @@
       </template>
       <b-card class="card-shadow">
         <b-form-group>
-          <label style="font-size: 13px" class="mt-2">Firstname</label>
-          <b-form-input
-            id="action-desc"
-            v-model="usersData.FirstName"
-          ></b-form-input>
-          <label style="font-size: 13px" class="mt-2">Middle Initial</label>
-          <b-form-input
-            id="action-desc"
-            v-model="usersData.MiddleInitial"
-          ></b-form-input>
-          <label style="font-size: 13px" class="mt-2">Lastname</label>
-          <b-form-input
-            id="action-desc"
-            v-model="usersData.LastName"
-          ></b-form-input>
-          <label style="font-size: 13px" class="mt-2">Department</label>
-          <b-form-select id="select-module-act" v-model="selectedDepartment">
+          <label style="font-size: 13px" class="mt-2">Select Employee</label>
+          <b-input-group>
+            <b-form-input
+              id="action-desc"
+              v-model="selectedEmployee"
+              placeholder="Click search to find employee"
+              readonly
+            ></b-form-input>
+            <b-input-group-append>
+              <b-button
+                size="sm"
+                variant="primary"
+                @click="openEmployeeSearchModal"
+                v-b-tooltip.hover
+                title="Search Employee"
+              >
+                <font-awesome-icon icon="magnifying-glass" />
+              </b-button>
+            </b-input-group-append>
+            </b-input-group>
+             <label style="font-size: 13px" class="mt-2">Account</label>
+          <b-form-select size="sm" id="select-account" v-model="selectedAccount">
             <option
-              v-for="(department, i) in departments"
+              v-for="(account, i) in funcAccounts"
               :key="i"
-              :value="department.id"
+              :value="account.Func_per_Office_ID"
             >
-              {{ department.DepartmentDescription }}
+              {{ account.FuncOffice }}
             </option>
           </b-form-select>
-          <label style="font-size: 13px" class="mt-2">Username</label>
+           <label style="font-size: 13px" class="mt-2">Username</label>
           <b-form-input
             id="action-desc"
-            v-model="usersData.UserName"
+            v-model="usersData.Username"
           ></b-form-input>
+          <label style="font-size: 13px" class="mt-2">Role</label>
+          <b-form-select size="sm" id="select-module-act" v-model="selectedRole">
+            <option
+              v-for="(role, i) in roles"
+              :key="i"
+              :value="role.role_id"
+            >
+              {{ role.role_desc }}
+            </option>
+          </b-form-select>
+         
+          
         </b-form-group>
       </b-card>
 
       <template v-slot:modal-footer>
-        <b-button size="sm" @click="addUser()" class="primaryBtn mr-2"
-          >Save</b-button
-        >
         <b-button size="sm" @click="cancelAdd()" class="greyBtn mr-2"
           >Cancel</b-button
+        >
+         <b-button size="sm" @click="addUser()" class="primaryBtn mr-2"
+          >Save</b-button
         >
       </template>
     </b-modal>
@@ -72,37 +89,53 @@
       </template>
       <b-card class="card-shadow">
         <b-form-group>
-          <label style="font-size: 13px" class="mt-2">Firstname</label>
-          <b-form-input
-            id="action-desc"
-            v-model="usersData.FirstName"
-          ></b-form-input>
-          <label style="font-size: 13px" class="mt-2">Middle Initial</label>
-          <b-form-input
-            id="action-desc"
-            v-model="usersData.MiddleInitial"
-          ></b-form-input>
-          <label style="font-size: 13px" class="mt-2">Lastname</label>
-          <b-form-input
-            id="action-desc"
-            v-model="usersData.LastName"
-          ></b-form-input>
-          <label style="font-size: 13px" class="mt-2">Department</label>
-          <b-form-select id="select-module-act" v-model="selectedDepartment">
-            <option disabled value="">Please select a menu</option>
+          <label style="font-size: 13px" class="mt-2">Select Employee</label>
+          <b-input-group>
+            <b-form-input
+              id="action-desc"
+              v-model="selectedEmployee"
+              placeholder="Click search to find employee"
+              readonly
+            ></b-form-input>
+            <b-input-group-append>
+              <b-button
+                size="sm"
+                variant="primary"
+                @click="openEmployeeSearchModal"
+                v-b-tooltip.hover
+                title="Search Employee"
+              >
+                <font-awesome-icon icon="magnifying-glass" />
+              </b-button>
+            </b-input-group-append>
+            </b-input-group>
+             <label style="font-size: 13px" class="mt-2">Account</label>
+          <b-form-select size="sm" id="select-account" v-model="selectedAccount">
             <option
-              v-for="(department, i) in departments"
+              v-for="(account, i) in funcAccounts"
               :key="i"
-              :value="department.id"
+              :value="account.Func_per_Office_ID"
             >
-              {{ department.DepartmentDescription }}
+              {{ account.FuncOffice }}
             </option>
           </b-form-select>
-          <label style="font-size: 13px" class="mt-2">Username</label>
+           <label style="font-size: 13px" class="mt-2">Username</label>
           <b-form-input
             id="action-desc"
-            v-model="usersData.UserName"
+            v-model="usersData.Username"
           ></b-form-input>
+          <label style="font-size: 13px" class="mt-2">Role</label>
+          <b-form-select size="sm" id="select-module-act" v-model="selectedRole">
+            <option disabled value="">Please select a menu</option>
+             <option
+              v-for="(role, i) in roles"
+              :key="i"
+              :value="role.role_id"
+            >
+              {{ role.role_desc }}
+            </option>
+          </b-form-select>
+          
         </b-form-group>
       </b-card>
 
@@ -127,7 +160,6 @@
     >
       <template #modal-title>
         <div style="display: flex; flex-direction: row; align-items: center">
-          <i style="color: white" class="fas fa-exclamation-triangle"></i>
           <h4 style="margin-bottom: 3px">&nbsp;&nbsp;WARNING!</h4>
         </div>
       </template>
@@ -159,6 +191,82 @@
       </template>
     </b-modal>
     <!-- end reset modal -->
+    
+    <!-- Employee Search Modal -->
+    <b-modal
+      size="lg"
+      header-class="assetColor"
+      id="bv-modal-employee-search"
+      class="modal"
+      no-close-on-backdrop
+    >
+      <template v-slot:modal-title>
+        <h6>Search Employee</h6>
+      </template>
+      <b-card class="card-shadow">
+        <b-form-group class="mb-3" label-size="sm" label="Search Employee">
+          <b-input-group>
+            <b-form-input
+              type="search"
+              v-model="employeeSearch"
+              placeholder="Type employee name, username, or ID..."
+              @input="searchEmployees"
+            ></b-form-input>
+          </b-input-group>
+        </b-form-group>
+        
+        <b-table
+          head-variant="light"
+          class="tableAsset mt-2"
+          style="font-size: 12px"
+          show-empty
+          small
+          :current-page="currentPageEmployees"
+          :per-page="perPageEmployees"
+          :busy="isEmployeeBusy"
+          :items="filteredEmployees"
+          :fields="employeeFields"
+          @row-clicked="onEmployeeRowClicked"
+        >
+          <template #table-busy>
+            <div class="text-center text-secondary my-2">
+              <b-spinner class="align-middle"></b-spinner>
+            </div>
+          </template>
+          <template v-slot:empty>
+            <div class="text-center text-muted my-3">
+              <font-awesome-icon icon="search" class="mr-2" />
+              No employees found
+            </div>
+          </template>
+        </b-table>
+        
+        <!-- Pagination for employee results -->
+        <b-pagination
+          v-if="filteredEmployees.length > perPageEmployees"
+          v-model="currentPageEmployees"
+          :total-rows="filteredEmployees.length"
+          :per-page="perPageEmployees"
+          pills
+          align="center"
+          size="sm"
+          class="mt-3"
+        ></b-pagination>
+      </b-card>
+      
+      <template v-slot:modal-footer>
+        <div>
+          <b-button
+            size="sm"
+            class="greyBtn mr-2"
+            @click="closeEmployeeModal"
+            >Cancel</b-button
+          >
+        </div>
+      </template>
+    </b-modal>
+    <!-- end employee search modal -->
+
     <b-row>
       <b-col>
          <nav class="breadcrumb-container ml-4">
@@ -180,6 +288,7 @@
                   ></b-form-input>
                   <b-input-group-append>
                     <b-button
+                      size="sm"
                       class="buttonClearSearch"
                       id="buttonClearSearch"
                       :disabled="!filterUsers"
@@ -192,12 +301,14 @@
             </b-col>
             <b-col cols="4" class="text-right">
               <b-button
-                style="background: #00488e; border: none; font-size: 13px"
-                class="ml-4"
-                size="md"
+                class="defaultBtn"
+                size="sm"
+                v-b-tooltip.hover
+                title="Add new User"
                 @click="$bvModal.show('bv-modal-addUsers')"
               >
-                <font-awesome-icon icon="plus" class="icon" />Add New User
+                <font-awesome-icon icon="circle-plus" class="icon" />
+                Add New User
               </b-button>
             </b-col>
           </b-row>
@@ -299,16 +410,45 @@ export default {
         variant: "",
         message: "",
       },
-      departments: [],
-      selectedDepartment: null,
+      roles: [],
+      selectedRole: null,
+      funcAccounts: [],
+      selectedAccount: null,
       usersData: {
-        LastName: null,
+        Fullname: null,
+        Username: null,
         FirstName: null,
-        Department: null,
-        UserName: null,
-        MiddleInitial: null,
-        UserId: null,
+        LastName: null,
+        MiddleName: null,
+        func_per_office_id: null,
+        office_id: null,
+        deparment_name: null,
+        user_id: null,
+        employee_id: null,
       },
+      // Employee search modal data
+      employeeSearch: "",
+      employeeResults: [],
+      isEmployeeBusy: false,
+      selectedEmployee: null,
+      currentPageEmployees: 1,
+      perPageEmployees: 10,
+      employeeFields: [
+        {
+          key: "AccountName",
+          label: "Account Name",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-left",
+        },
+        {
+          key: "DeptDesc",
+          label: "Department",
+          sortable: true,
+          sortDirection: "desc",
+          class: "text-left",
+        },
+      ],
       fieldsUsers: [
         {
           key: "AccountName",
@@ -322,7 +462,7 @@ export default {
           label: "Username",
           sortable: true,
           sortDirection: "desc",
-          class: "text-center",
+          class: "text-left",
         },
         {
           key: "Role",
@@ -336,7 +476,7 @@ export default {
           label: "Office",
           sortable: true,
           sortDirection: "desc",
-          class: "text-center",
+          class: "text-left",
         },
         {
           key: "IsActive",
@@ -357,7 +497,8 @@ export default {
   },
   async created() {
     await this.getUsers();
-    await this.getDepartments();
+    await this.getRoles();
+    await this.getAccounts();
   },
   computed: {
     filteredUsers() {
@@ -368,12 +509,12 @@ export default {
 
       return this.users.filter((item) => {
         return (
-          String(item.LastName).toLowerCase().includes(filterLowerCase) ||
-          String(item.FirstName).toLowerCase().includes(filterLowerCase) ||
-          String(item.DepartmentDescription)
+          String(item.AccountName).toLowerCase().includes(filterLowerCase) ||
+          String(item.Username).toLowerCase().includes(filterLowerCase) ||
+          String(item.OfficeName)
             .toLowerCase()
             .includes(filterLowerCase) ||
-          String(item.UserCode).toLowerCase().includes(filterLowerCase)
+          String(item.Role).toLowerCase().includes(filterLowerCase)
         );
       });
     },
@@ -391,6 +532,23 @@ export default {
         start = 0;
       }
       return `Showing ${start} to ${end} of ${this.filteredUsers.length} entries`;
+    },
+    filteredEmployees() {
+      if (!this.employeeSearch.trim()) {
+        return this.employeeResults;
+      }
+      const filterLowerCase = this.employeeSearch.trim().toLowerCase();
+      return this.employeeResults.filter((employee) => {
+        return (
+          String(employee.AccountName).toLowerCase().includes(filterLowerCase) ||
+          String(employee.DeptDesc).toLowerCase().includes(filterLowerCase) ||
+          String(employee.FuncOffice).toLowerCase().includes(filterLowerCase)
+        );
+      });
+    },
+    selectedAccount() {
+      const selectedAccountObj = this.funcAccounts.find(account => account.Func_per_Office_ID === this.selectedAccount);
+      return selectedAccountObj ? selectedAccountObj.Office_ID : this.selectedAccount;
     },
   },
   mounted() {},
@@ -421,21 +579,43 @@ export default {
         this.showAlert(error.response.data.error, "danger");
       }
     },
-    async getDepartments() {
+    async getRoles() {
       this.isBusy = true;
       try {
         const res = await axios({
           method: "GET",
-          url: `${this.$axios.defaults.baseURL}/admin/departments/get-roles`,
+          url: `${this.$axios.defaults.baseURL}/admin/roles/get-all`,
           headers: {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "GET",
           },
         });
-        this.departments = res.data;
+        this.roles = res.data;
       } catch (error) {
         this.isBusy = false;
         console.log(error);
+      } finally {
+        this.isBusy = false;
+      }
+    },
+    async getAccounts() {
+      this.isBusy = true;
+      try {
+        const res = await axios({
+          method: "GET",
+          url: `${this.$axios.defaults.baseURL}/admin/BOS/get-func-offices`,
+          headers: {
+            "Content-Type": "application/json",
+            "X-HTTP-Method-Override": "GET",
+          },
+        });
+        console.log(res.data, "ACCOUNTS");
+        this.funcAccounts =  res.data;
+      } catch (error) {
+        this.isBusy = false;
+        console.error("Failed to get accounts", error);
+        this.showAlert("Failed to load accounts", "danger");
+        return [];
       } finally {
         this.isBusy = false;
       }
@@ -468,6 +648,7 @@ export default {
       this.$bvModal.show("bv-modal-reset");
     },
     cancelReset() {
+      this.resetFields();
       this.$bvModal.hide("bv-modal-reset");
     },
 
@@ -476,13 +657,14 @@ export default {
         this.showLoading = true;
         const res = await axios({
           method: "POST",
-          url: `${this.$axios.defaults.baseURL}/admin/users/add`,
+          url: `${this.$axios.defaults.baseURL}/admin/user-accounts/insert`,
           data: {
-            user_name: this.usersData.UserName,
-            first_name: this.usersData.FirstName,
-            last_name: this.usersData.LastName,
-            middle_initial: this.usersData.MiddleInitial,
-            department_id: this.selectedDepartment,
+            Username: this.usersData.Username,
+            role_id: this.selectedRole,
+            func_per_office_id: this.selectedAccount,
+            office_id: this.selectedAccountOffice,
+            EmpId: this.usersData.employee_id || 0,
+            user_id: '12'
           },
         });
         this.showLoading = false;
@@ -500,12 +682,22 @@ export default {
       this.$bvModal.hide("bv-modal-addUsers");
     },
     editUserModal(data) {
-      this.usersData.FirstName = data.item.FirstName;
-      this.usersData.MiddleInitial = data.item.MiddleInitial;
-      this.usersData.LastName = data.item.LastName;
-      this.selectedDepartment = data.item.DepartmentId;
-      this.usersData.UserName = data.item.UserCode;
+      console.log(data)
+      // Populate fields with existing user data
+      this.selectedEmployee = data.item.AccountName || data.item.Fullname;
+      this.usersData.Username = data.item.Username || data.item.UserCode;
+      this.selectedRole = data.item.RoleId ;
+      this.selectedAccount = parseInt(data.item.FuncPerOfficeId);
+      this.usersData.FirstName = data.item.FirstName || data.item.first_name;
+      this.usersData.LastName = data.item.LastName || data.item.last_name;
+      this.usersData.MiddleName = data.item.MiddleName || data.item.middle_initial;
       this.usersData.UserId = data.item.UserId;
+      this.usersData.employee_id = data.item.empid;
+      
+      // Set office_id from selected account
+      const selectedAccountObj = this.funcAccounts.find(account => account.Func_per_Office_ID === this.selectedAccount);
+      this.usersData.office_id = selectedAccountObj ? selectedAccountObj.Office_ID : this.selectedAccount;
+      
       this.$bvModal.show("bv-modal-editUsers");
     },
     cancelEdit() {
@@ -517,13 +709,18 @@ export default {
         this.showLoading = true;
         const res = await axios({
           method: "PUT",
-          url: `${this.$axios.defaults.baseURL}/admin/users/update/${this.usersData.UserId}`,
+          url: `${this.$axios.defaults.baseURL}/admin/user-accounts/update/${this.usersData.UserId}`,
           data: {
-            user_name: this.usersData.UserName,
-            first_name: this.usersData.FirstName,
-            last_name: this.usersData.LastName,
-            middle_initial: this.usersData.MiddleInitial,
-            department_id: this.selectedDepartment,
+            Username: this.usersData.Username,
+            Firstname: this.usersData.FirstName,
+            Lastname: this.usersData.LastName,
+            Middlename: this.usersData.MiddleName,
+            AccountName: this.selectedEmployee,
+            role_id: this.selectedRole,
+            func_per_office_id: this.selectedAccount,
+            office_id: this.usersData.office_id,
+            empid: this.usersData.employee_id || 0,
+            user_id: this.usersData.UserId
           },
         });
         this.showLoading = false;
@@ -539,19 +736,74 @@ export default {
 
     resetFields() {
       (this.usersData = {
-        LastName: null,
+        Fullname: null,
+        Username: null,
         FirstName: null,
-        Department: null,
-        UserName: null,
-        MiddleInitial: null,
-        UserId: null,
+        LastName: null,
+        MiddleName: null,
+        func_per_office_id: null,
+        office_id: null,
+        deparment_name: null,
+        user_id: null,
+        employee_id: null,
       }),
-        (this.selectedDepartment = null);
+        (this.selectedRole = null);
+        (this.selectedAccount = null);
       this.filterUsers = "";
     },
     clearSearch() {
       this.filterUsers = "";
     },
+    async openEmployeeSearchModal() {
+      this.employeeSearch = "";
+      this.employeeResults = [];
+      this.selectedEmployee = null;
+      this.currentPageEmployees = 1; // Reset pagination
+      await this.searchEmployees();
+      this.$bvModal.show('bv-modal-employee-search');
+    },
+    closeEmployeeModal() {
+      this.$bvModal.hide('bv-modal-employee-search');
+    },
+    async searchEmployees() {
+      this.isEmployeeBusy = true;
+      try {
+        const res = await axios({
+          method: "GET",
+          url: `${this.$axios.defaults.baseURL}/admin/HRMS/get-employees?IsAssigned=1&IsAll=0&text=${this.employeeSearch}`,
+          headers: {
+            "Content-Type": "application/json",
+            "X-HTTP-Method-Override": "GET",
+          },
+        });
+        console.log(res.data,"EMP")
+        this.employeeResults = res.data;
+      } catch (error) {
+        console.error("Failed to search employees", error);
+        this.showAlert("Failed to load employees", "danger");
+      } finally {
+        this.isEmployeeBusy = false;
+      }
+    },
+    onEmployeeRowClicked(employee) {
+      
+      this.closeEmployeeModal();
+      this.selectedEmployee = employee.AccountName;
+      
+      // Extract name components from AccountName
+      const nameParts = employee.AccountName.split(' ');
+      this.usersData.FirstName = nameParts[0] || '';
+      this.usersData.LastName = nameParts[nameParts.length - 1] || '';
+      this.usersData.MiddleName = nameParts.length > 2 ? nameParts[1] : '';
+      
+      this.usersData.employee_id = employee.EmpId;
+      
+      // Find the selected account object to get Office_ID
+      const selectedAccountObj = this.funcAccounts.find(account => account.Func_per_Office_ID === this.selectedAccount);
+      this.usersData.office_id = selectedAccountObj ? selectedAccountObj.Office_ID : this.selectedAccount; 
+      this.usersData.func_per_office_id = this.selectedAccount;
+    },
+
   },
 
   layout: "sidebar",

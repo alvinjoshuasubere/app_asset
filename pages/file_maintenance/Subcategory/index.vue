@@ -10,9 +10,10 @@ export default {
   components: {
     Subcategory,
   },
-  // meta: {
-  //   access: { right: "view transactions" }
-  // },
+  middleware: "pageValidator",
+  meta: {
+    access: { right: "View Subcategory" }
+  },
   head() {
     return {
       meta: [

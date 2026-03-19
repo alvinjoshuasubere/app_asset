@@ -10,9 +10,10 @@
     components: {
       Dashboard
     },
-    // meta: {
-    //   access: { right: "view transactions" }
-    // },
+    middleware: "pageValidator",
+    meta: {
+      access: { right: "View Dashboard" }
+    },
     head() {
       return {
         meta: [

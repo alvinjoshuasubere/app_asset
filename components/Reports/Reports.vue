@@ -1,9 +1,11 @@
 <template>
     <!-- DIVISION -->
     <div class="my-3" id="requests-view">
-      <h4 class="color1 ml-4">
-        Reports
-      </h4>
+       <nav class="breadcrumb-container ml-4">
+          <a href="#" class="breadcrumb-link">Home</a>
+          <span class="breadcrumb-separator">▶</span>
+          <span class="breadcrumb-current">Reports</span>
+        </nav>
     </div>
   </template>
   

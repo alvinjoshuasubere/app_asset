@@ -161,19 +161,19 @@
         <span class="mb-1" style="position: relative; padding-left: 1.5rem">
           <b-row>
             <b style="font-size: 10px; font-size: 12px; color: #343a40"
-              >Alvin Subere&nbsp;</b
+              >{{user.name}}&nbsp;</b
             >
           </b-row>
           <b-row>
             <b-badge
-              class="dark"
+              class="badgeRole"
               style="
                 margin-top: 1px;
                 font-size: 9px;
                 border-radius: 100px;
                 padding: 3px 6px;
               "
-              >Administrator</b-badge
+              >{{user.role}}</b-badge
             >
           </b-row>
         </span>
@@ -269,6 +269,10 @@ export default {
       activeadminsubmenus: [],
       activelinks: [],
       clickStatus: false,
+      user:{
+        name : null,
+        role : null
+      },
       adminsubmenus: [
         {
           path: "/admin/modules",
@@ -368,6 +372,8 @@ export default {
   },
   mounted() {},
   async created() {
+    this.user.name = JSON.parse(localStorage.getItem('user') || '""');
+    this.user.role = localStorage.role;
     if (localStorage.accessRights) {
       const access = JSON.parse(localStorage.accessRights);
       const actions = access.flatMap((menu) =>
@@ -788,5 +794,9 @@ ul ul a {
 
 .noti-footer {
   height: 0.5rem;
+}
+.badgeRole{
+  background: #082439;
+  color: white;
 }
 </style>

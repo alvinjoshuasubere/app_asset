@@ -123,7 +123,7 @@ export default {
       this.showLoading = true;
       try {
         const res = await this.$axios.get(
-          `${this.$axios.defaults.baseURL}/items/get-filter?text=${this.$route.params.id}`
+          `${this.$axios.defaults.baseURL}/api-aims/items/get-one?ItemHdrId=${this.$route.params.id}`
         );
         const assetData = res.data[0];
         console.log(assetData)

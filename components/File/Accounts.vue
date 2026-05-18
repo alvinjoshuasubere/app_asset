@@ -100,7 +100,7 @@
             <!-- table employees -->
             <b-table
               id="empTable"
-              class="my-3 mx-3"
+              class="tableAsset my-3 mx-3"
               style="font-size: 12px"
               head-variant="light"
               show-empty

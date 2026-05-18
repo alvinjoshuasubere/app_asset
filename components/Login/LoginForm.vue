@@ -126,6 +126,7 @@ export default {
           localStorage.setItem('user', JSON.stringify(res.data.firstName ? res.data.firstName + ' ' + (res.data.lastName || '') : ''));
           localStorage.setItem('accessRights', JSON.stringify(res.data.modules || []));
           localStorage.setItem('id', res.data.id || '');
+          localStorage.setItem('role',res.data.role)
           
           // Check if user needs to be redirected to First_Login
           if (res.data.isToReset == true) {

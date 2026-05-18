@@ -3,7 +3,7 @@
     <div class="mt-3">
       <b-row>
         <b-col>
-           <nav class="breadcrumb-container ml-4">
+          <nav class="breadcrumb-container ml-4">
             <a href="#" class="breadcrumb-link">Home</a>
             <span class="breadcrumb-separator">▶</span>
             <a href="#" class="breadcrumb-link">File</a>
@@ -86,7 +86,7 @@
               >
                 <b-button
                   class="defaultBtn"
-                  style="background: #0b345f;font-size: 13px"
+                  style="background: #0b345f; font-size: 13px"
                   v-b-tooltip.hover
                   title="Create MTOP"
                   @click="$bvModal.show('bv-modal-create')"
@@ -100,15 +100,15 @@
             <!-- table employees -->
             <b-table
               id="empTable"
-              class="my-3 mx-3"
+              class="tableAsset my-3 mx-3"
               style="font-size: 12px"
               head-variant="light"
               show-empty
               stacked="md"
               small
-              select-mode="single"
               sticky-header
               no-border-collapse
+              hover
               :items="paginatedItems"
               :fields="fields"
               :sort-by.sync="sortBy"
@@ -124,7 +124,7 @@
               </template>
               <template v-slot:cell(IsActive)="row">
                 <b-badge :variant="row.item.IsActive ? 'success' : 'secondary'">
-                  {{ row.item.IsActive ? 'Active' : 'Inactive' }}
+                  {{ row.item.IsActive ? "Active" : "Inactive" }}
                 </b-badge>
               </template>
               <!-- <template v-slot:cell(FullName)="row">
@@ -219,16 +219,113 @@
       />
       {{ alert.message }}
     </b-alert>
+
+    <!-- Create Subcategory Modal -->
+    <b-modal
+      id="bv-modal-create"
+      no-close-on-backdrop
+      header-class="assetColor"
+      size="md"
+      @show="onCreateModalShow"
+    >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="circle-plus" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Add New Subcategory</span>
+            <span class="modal-title-desc">Create a new subcategory</span>
+          </div>
+        </div>
+      </template>
+
+      <b-form>
+        <b-form-group label="Account" label-for="account" class="mb-3">
+          <v-select
+            v-model="newSubcategory.AccountCode"
+            :options="accountOptions"
+            placeholder="- Select Account -"
+            :reduce="(option) => option.value"
+            label="text"
+            size="sm"
+            clearable
+            :close-on-select="true"
+            :append-to-body="true"
+            :calculate-position="withPopper"
+          />
+        </b-form-group>
+
+        <b-form-group label="Category" label-for="category" class="mb-3">
+          <v-select
+            id="category"
+            v-model="newSubcategory.RefCategoryId"
+            :options="categoryOptions"
+            :reduce="(option) => option.value"
+            label="text"
+            placeholder="- Select Category -"
+            :disabled="!newSubcategory.AccountCode"
+            required
+          ></v-select>
+        </b-form-group>
+
+        <b-form-group label="Subcategory" label-for="subcategory" class="mb-3">
+          <v-select
+            id="subcategory"
+            v-model="newSubcategory.SubcategoryId"
+            :options="subcategoryAddOptions"
+            :reduce="(option) => option.value"
+            label="text"
+            placeholder="- Select Subcategory -"
+            :disabled="subcategoryAddLoading"
+            required
+            :append-to-body="true"
+            :calculate-position="withPopper"
+          >
+            <template #no-options>
+              {{
+                subcategoryAddLoading
+                  ? "Loading subcategories..."
+                  : "No subcategories found"
+              }}
+            </template>
+          </v-select>
+        </b-form-group>
+      </b-form>
+      <template v-slot:modal-footer>
+        <div>
+          <b-button
+            size="sm"
+            class="greyBtn mr-2"
+            @click="$bvModal.hide('bv-modal-create')"
+            >Cancel</b-button
+          >
+          <b-button
+            @click="saveSubcategory"
+            :disabled="isSaving"
+            size="sm"
+            class="primaryBtn"
+          >
+            <b-spinner v-if="isSaving" small></b-spinner>
+            {{ isSaving ? "Saving..." : "Save" }}
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import vSelect from "vue-select";
+import { createPopper } from "@popperjs/core";
 // import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
 export default {
   layout: "sidebar",
-  components: {},
+  components: {
+    vSelect,
+  },
   async created() {},
   data() {
     return {
@@ -242,6 +339,16 @@ export default {
       filter: "",
       subcategoryList: [],
       refCategoryId: 0,
+      isSaving: false,
+      categoryOptions: [],
+      accountOptions: [],
+      subcategoryAddOptions: [],
+      subcategoryAddLoading: false,
+      newSubcategory: {
+        RefCategoryId: null,
+        SubcategoryId: null,
+        AccountCode: "",
+      },
 
       alert: {
         showAlert: 0,
@@ -328,11 +435,42 @@ export default {
       },
       immediate: true,
     },
+    "newSubcategory.AccountCode": {
+      handler(newValue) {
+        this.newSubcategory.RefCategoryId = null;
+        this.categoryOptions = [];
+        if (newValue) {
+          this.getCategories();
+        }
+      },
+    },
   },
   async mounted() {
     await this.getSubcategory();
+    await this.getAccounts();
   },
   methods: {
+    withPopper(dropdownList, component, { width }) {
+      dropdownList.style.width = width;
+      const popper = createPopper(component.$refs.toggle, dropdownList, {
+        placement: "bottom-start",
+        modifiers: [
+          { name: "offset", options: { offset: [0, 2] } },
+          {
+            name: "toggleClass",
+            enabled: true,
+            phase: "write",
+            fn({ state }) {
+              component.$el.classList.toggle(
+                "drop-up",
+                state.placement === "top"
+              );
+            },
+          },
+        ],
+      });
+      return () => popper.destroy();
+    },
     async getSubcategory() {
       this.isBusy = true;
       this.showLoading = true;
@@ -360,6 +498,107 @@ export default {
     clearFilter() {
       this.filter = "";
       this.getSubcategory();
+    },
+    async getAccounts() {
+      try {
+        const res = await this.$axios.get(
+          `${this.$axios.defaults.baseURL}/file-maintenance/accounts/get-all-GenBOS`
+        );
+        this.accountOptions = res.data
+          .map((a) => ({ value: a.value, text: a.text }))
+          .sort((a, b) => a.text.localeCompare(b.text));
+      } catch (error) {
+        console.error("Failed to load accounts", error);
+      }
+    },
+    async getCategories() {
+      if (!this.newSubcategory.AccountCode) {
+        this.categoryOptions = [];
+        return;
+      }
+      try {
+        const res = await this.$axios.get(
+          `${this.$axios.defaults.baseURL}/admin/SMS/get-account-category?RefAccountId=${this.newSubcategory.AccountCode}`
+        );
+        this.categoryOptions = res.data
+          .map((c) => ({
+            value: c.account_category_id,
+            text: c.account_category_description,
+          }))
+          .sort((a, b) => a.text.localeCompare(b.text));
+      } catch (error) {
+        console.error("Failed to load categories", error);
+      }
+    },
+    async getAllSubcategories() {
+      this.subcategoryAddLoading = true;
+      try {
+        const res = await this.$axios.get(
+          `${this.$axios.defaults.baseURL}/file-maintenance/subcategory/get-asset?SubcategoryId=0`
+        );
+        const rows = Array.isArray(res.data) ? res.data : [];
+        this.subcategoryAddOptions = rows
+          .map((s) => ({
+            value: s.subcategory_id,
+            text: s.subcategory_desc,
+          }))
+          .sort((a, b) => a.text.localeCompare(b.text));
+      } catch (error) {
+        console.error("Failed to load subcategories for add", error);
+        this.subcategoryAddOptions = [];
+        this.alert = {
+          showAlert: true,
+          variant: "danger",
+          message: "Failed to load subcategory list",
+        };
+      } finally {
+        this.subcategoryAddLoading = false;
+      }
+    },
+    onCreateModalShow() {
+      this.resetModal();
+      this.getAllSubcategories();
+    },
+    resetModal() {
+      this.newSubcategory = {
+        RefCategoryId: null,
+        SubcategoryId: null,
+        AccountCode: "",
+      };
+      this.categoryOptions = [];
+    },
+    async saveSubcategory() {
+      this.isSaving = true;
+      try {
+        const payload = {
+          ref_category_id: this.newSubcategory.RefCategoryId,
+          subcategory_id: this.newSubcategory.SubcategoryId,
+          account_code: this.newSubcategory.AccountCode,
+        };
+
+        const res = await this.$axios.post(
+          `${this.$axios.defaults.baseURL}/file-maintenance/subcategory/link`,
+          payload
+        );
+
+        this.alert = {
+          showAlert: true,
+          variant: "success",
+          message: "Subcategory added successfully!",
+        };
+
+        this.$bvModal.hide("bv-modal-create");
+        await this.getSubcategory();
+      } catch (error) {
+        console.error("Failed to save subcategory", error);
+        this.alert = {
+          showAlert: true,
+          variant: "danger",
+          message: "Failed to save subcategory",
+        };
+      } finally {
+        this.isSaving = false;
+      }
     },
   },
 };

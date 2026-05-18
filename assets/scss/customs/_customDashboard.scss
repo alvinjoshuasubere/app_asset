@@ -1,0 +1,236 @@
+
+/* ═══════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════ */
+.dashboard-page {
+  padding: 20px 24px 0;
+  background: #f1f4f9;
+  min-height: 100vh;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ═══════════════════════════════════════════
+   STATS ROW
+═══════════════════════════════════════════ */
+.stats-row {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+  position: relative;
+}
+
+.refresh-btn {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.12s;
+  z-index: 2;
+}
+.refresh-btn:hover { background: #f8fafc; }
+
+.spinning {
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.stat-card {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.stat-sub {
+  font-size: 11px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+.sub-up      { color: #16a34a; }
+.sub-down    { color: #dc2626; }
+.sub-neutral { color: #94a3b8; }
+
+/* ═══════════════════════════════════════════
+   BOTTOM ROW
+═══════════════════════════════════════════ */
+.bottom-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.table-panel { flex: 1.1; }
+.chart-panel { flex: 1; }
+
+.panel-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.panel-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* ── Category Table ── */
+.cat-table-wrapper {
+  overflow-x: auto;
+}
+
+.cat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.cat-table thead tr {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+.cat-table thead th {
+  padding: 9px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.cat-row {
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.1s;
+}
+.cat-row:hover { background: #f8fafc; }
+.cat-row:last-child { border-bottom: none; }
+
+.cat-table tbody td {
+  padding: 8px 16px;
+  vertical-align: middle;
+  color: #334155;
+}
+
+.cat-name {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 12px;
+}
+.cat-num {
+  font-weight: 700;
+  color: #1e40af;
+  font-size: 12px;
+}
+.text-right { text-align: right; }
+
+.cat-bar-cell { min-width: 160px; }
+.cat-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cat-pct {
+  font-size: 11px;
+  color: #475569;
+  min-width: 38px;
+}
+.cat-bar-bg {
+  flex: 1;
+  height: 5px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.cat-bar-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ── Category Pagination ── */
+.cat-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+}
+.pg-btn {
+  padding: 4px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 11px;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pg-btn:not(:disabled):hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+.pg-btn.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+  font-weight: 700;
+}
+
+/* ── Chart ── */
+.chart-area {
+  padding: 16px 16px 12px;
+  height: 320px;
+  position: relative;
+}
+.chart-area canvas {
+  width: 100% !important;
+  height: 100% !important;
+}

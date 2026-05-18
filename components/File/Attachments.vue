@@ -3,7 +3,7 @@
     <div class="mt-3">
       <b-row>
         <b-col>
-        <nav class="breadcrumb-container ml-4">
+          <nav class="breadcrumb-container ml-4">
             <a href="#" class="breadcrumb-link">Home</a>
             <span class="breadcrumb-separator">▶</span>
             <a href="#" class="breadcrumb-link">File</a>
@@ -86,7 +86,7 @@
               >
                 <b-button
                   class="defaultBtn"
-                  style="background: #0b345f;font-size: 13px"
+                  style="background: #0b345f; font-size: 13px"
                   v-b-tooltip.hover
                   title="Create MTOP"
                   @click="$bvModal.show('bv-modal-create')"
@@ -100,7 +100,7 @@
             <!-- table employees -->
             <b-table
               id="empTable"
-              class="my-3 mx-3"
+              class="tableAsset my-3 mx-3"
               style="font-size: 12px"
               head-variant="light"
               show-empty
@@ -123,8 +123,10 @@
                 </div>
               </template>
               <template v-slot:cell(is_active)="row">
-                <b-badge :variant="row.item.is_active ? 'success' : 'secondary'">
-                  {{ row.item.is_active ? 'Active' : 'Inactive' }}
+                <b-badge
+                  :variant="row.item.is_active ? 'success' : 'secondary'"
+                >
+                  {{ row.item.is_active ? "Active" : "Inactive" }}
                 </b-badge>
               </template>
               <!-- <template v-slot:cell(FullName)="row">
@@ -320,7 +322,11 @@ export default {
       this.showLoading = true;
       try {
         const res = await this.$axios.get(
-          `${this.$axios.defaults.baseURL}/file-maintenance/attachments/get-all/?attachment=${this.filter || ''}&isActive=${this.isActive}`
+          `${
+            this.$axios.defaults.baseURL
+          }/file-maintenance/attachments/get-all/?attachment=${
+            this.filter || ""
+          }&isActive=${this.isActive}`
         );
         this.attachmentsList = res.data || [];
       } catch (error) {

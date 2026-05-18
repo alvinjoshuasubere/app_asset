@@ -5,9 +5,21 @@
       no-close-on-backdrop
       header-class="assetColor"
       id="bv-modal-employee-selection"
-      title="Select Employee"
       size="lg"
     >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="users" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Select Employee</span>
+            <span class="modal-title-desc"
+              >Choose an employee from the list below</span
+            >
+          </div>
+        </div>
+      </template>
       <b-container fluid>
         <b-row class="mb-3">
           <b-col cols="12">
@@ -38,7 +50,7 @@
               hover
               selectable
               select-mode="single"
-              :items="paginatedEmployees"
+              :items="filteredEmployees"
               :fields="employeeFields"
               :busy.sync="isEmployeeBusy"
               :per-page="employeePerPage"
@@ -80,10 +92,22 @@
       no-close-on-backdrop
       header-class="assetColor"
       id="bv-modal-asset-details"
-      title="Asset Item Details"
       size="xl"
       @close="closeModalView"
     >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="circle-info" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Asset Item Details</span>
+            <span class="modal-title-desc"
+              >View comprehensive asset information</span
+            >
+          </div>
+        </div>
+      </template>
       <b-container fluid>
         <!-- Asset Details Section -->
         <div class="asset-details-section">
@@ -177,21 +201,45 @@
             <span class="section-title">Current Assignment</span>
           </div>
           <div class="assignment-info mb-3">
-            <h4 class="assigned-employee">
-              {{ assetDetails.EmployeeAssigned || "N/A" }}
-            </h4>
-            <p class="office-location mb-1">
-              {{ assetDetails.OfficeName || "N/A" }}
-            </p>
-            <p class="location-detail mb-1">
-              {{ assetDetails.Location || "N/A" }}
-            </p>
-            <b-badge
-              :variant="assetDetails.IsOutside ? 'warning' : 'success'"
-              class="location-badge"
-            >
-              {{ assetDetails.IsOutside ? "OUTSIDE" : "ON PREMISES" }}
-            </b-badge>
+            <div class="assignment-row mb-2">
+              <div class="assignment-item">
+                <h6 class="assignment-label">Accountable Employee</h6>
+                <p class="assignment-value">
+                  {{ assetDetails.EmployeeAssigned || "N/A" }}
+                </p>
+              </div>
+              <div class="assignment-item">
+                <h6 class="assignment-label">Actual User</h6>
+                <p class="assignment-value">
+                  {{ assetDetails.EmployeeUser || "N/A" }}
+                </p>
+              </div>
+            </div>
+            <div class="assignment-row mb-2">
+              <div class="assignment-item">
+                <h6 class="assignment-label">Department</h6>
+                <p class="assignment-value">
+                  {{ assetDetails.OfficeName || "N/A" }}
+                </p>
+              </div>
+              <div class="assignment-item">
+                <h6 class="assignment-label">Location</h6>
+                <p class="assignment-value">
+                  {{ assetDetails.Location || "N/A" }}
+                </p>
+              </div>
+            </div>
+            <div class="assignment-row">
+              <div class="assignment-item full-width">
+                <h6 class="assignment-label">Status</h6>
+                <b-badge
+                  :variant="assetDetails.IsOutside ? 'warning' : 'success'"
+                  class="status-badge"
+                >
+                  {{ assetDetails.IsOutside ? "OUTSIDE" : "ON PREMISES" }}
+                </b-badge>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -256,7 +304,7 @@
                       <b-button
                         size="sm"
                         variant="primary"
-                        @click="openEmployeeModal('accountable')"
+                        @click="openEmployeeModalForAction('accountable')"
                       >
                         <font-awesome-icon icon="file" />
                       </b-button>
@@ -515,15 +563,28 @@
       no-close-on-backdrop
       header-class="assetColor"
       id="bv-modal-add-asset"
-      title="Add Asset"
       size="xl"
       @close="cancelAssetDetails"
+      @show="initializeAddAsset"
     >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="circle-plus" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Add Asset</span>
+            <span class="modal-title-desc"
+              >Fill in the details to create a new asset</span
+            >
+          </div>
+        </div>
+      </template>
       <b-container fluid>
         <div class="section-header">
-            <i class="fas fa-chart-line"></i>
-            <span class="section-title">Asset Details</span>
-          </div>
+          <i class="fas fa-chart-line"></i>
+          <span class="section-title">Asset Details</span>
+        </div>
         <b-row>
           <b-col cols="12">
             <b-form-group label-size="sm" label="Status">
@@ -543,7 +604,7 @@
               <v-select
                 v-model="assetInfo.assetAccount"
                 :options="assetAccountOptions"
-                placeholder="Select Account"
+                placeholder="- Select Account -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -559,7 +620,8 @@
               <v-select
                 v-model="assetInfo.assetCategory"
                 :options="assetCategoryOptions"
-                placeholder="Select Category"
+                placeholder="- Select Category -"
+                :reduce="(option) => option.value"
                 label="text"
                 size="sm"
                 :disabled="!assetInfo.assetAccount"
@@ -578,11 +640,11 @@
               <v-select
                 v-model="assetInfo.assetSubcategory"
                 :options="assetSubcategoryOptions"
-                placeholder="Select Subcategory"
+                placeholder="- Select Subcategory -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
-                :disabled="!assetInfo.assetCategory"
+                :disabled="!assetInfo.assetCategory && isEditMode"
                 clearable
                 :close-on-select="true"
                 :append-to-body="true"
@@ -595,7 +657,7 @@
               <v-select
                 v-model="assetInfo.unit"
                 :options="unitOptions"
-                placeholder="Nothing selected"
+                placeholder="- Select Unit -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -614,7 +676,7 @@
               <v-select
                 v-model="assetInfo.assetDepartment"
                 :options="departmentOptions"
-                placeholder="Nothing selected"
+                placeholder="- Select Office -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -761,9 +823,18 @@
           <b-row>
             <b-col md="6">
               <b-form-group label-size="sm" label="Department Assigned">
-                <b-form-input
+                <v-select
                   v-model="assetInfo.departmentAssigned"
-                ></b-form-input>
+                  :options="departmentOptions"
+                  placeholder="- Select Office -"
+                  :reduce="(option) => option.value"
+                  label="text"
+                  size="sm"
+                  clearable
+                  :close-on-select="true"
+                  :append-to-body="true"
+                  :calculate-position="withPopper"
+                />
               </b-form-group>
             </b-col>
             <b-col md="6">
@@ -771,7 +842,7 @@
                 <v-select
                   v-model="assetInfo.location"
                   :options="locationOptions"
-                  placeholder="Nothing selected"
+                  placeholder="- Select Location -"
                   :reduce="(option) => option.value"
                   label="text"
                   size="sm"
@@ -825,10 +896,20 @@
       no-close-on-backdrop
       header-class="assetColor"
       id="bv-modal-edit-asset"
-      title="Edit Asset"
       size="xl"
       @close="cancelAssetDetails"
     >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="pen-to-square" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Edit Asset</span>
+            <span class="modal-title-desc">Update asset information</span>
+          </div>
+        </div>
+      </template>
       <b-container fluid>
         <div class="section-header">
           <i class="fas fa-chart-line"></i>
@@ -864,9 +945,10 @@
           <b-col md="6">
             <b-form-group label-size="sm" label="Asset Account">
               <v-select
+                disabled
                 v-model="assetInfo.assetAccount"
                 :options="assetAccountOptions"
-                placeholder="Select Account"
+                placeholder="- Select Account -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -880,12 +962,13 @@
           <b-col md="6">
             <b-form-group label-size="sm" label="Asset Category">
               <v-select
+                disabled
                 v-model="assetInfo.assetCategory"
                 :options="assetCategoryOptions"
-                placeholder="Select Category"
+                placeholder="- Select Category -"
+                :reduce="(option) => option.value"
                 label="text"
                 size="sm"
-                :disabled="!assetInfo.assetAccount"
                 clearable
                 :close-on-select="true"
                 :append-to-body="true"
@@ -899,13 +982,13 @@
           <b-col md="6">
             <b-form-group label-size="sm" label="Asset Subcategory">
               <v-select
+                disabled
                 v-model="assetInfo.assetSubcategory"
                 :options="assetSubcategoryOptions"
-                placeholder="Select Subcategory"
+                placeholder="- Select Subcategory -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
-                :disabled="!assetInfo.assetCategory"
                 clearable
                 :close-on-select="true"
                 :append-to-body="true"
@@ -918,7 +1001,7 @@
               <v-select
                 v-model="assetInfo.unit"
                 :options="unitOptions"
-                placeholder="Nothing selected"
+                placeholder="- Select Unit -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -937,7 +1020,7 @@
               <v-select
                 v-model="assetInfo.assetDepartment"
                 :options="departmentOptions"
-                placeholder="Nothing selected"
+                placeholder="- Select Office -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -1154,6 +1237,19 @@
       title="Other Details"
       size="md"
     >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="credit-card" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Other Asset Details</span>
+            <span class="modal-title-desc"
+              >View additional asset information</span
+            >
+          </div>
+        </div>
+      </template>
       <b-container fluid>
         <b-row>
           <b-col md="12">
@@ -1161,7 +1257,7 @@
               <v-select
                 v-model="additionalDetails.supplier"
                 :options="supplierOptions"
-                placeholder="Select Supplier"
+                placeholder="- Select Supplier -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -1177,7 +1273,7 @@
               <v-select
                 v-model="additionalDetails.manufacturer"
                 :options="manufacturerOptions"
-                placeholder="Select Manufacturer"
+                placeholder="- Select Manufacturer -"
                 :reduce="(option) => option.value"
                 label="text"
                 size="sm"
@@ -1228,7 +1324,13 @@
             Cancel
           </b-button>
           <b-button size="sm" class="primaryBtn" @click="saveOtherDetails">
-            {{ existingDetails && existingDetails.data && existingDetails.data.length > 0 ? 'Update' : 'Save Details' }}
+            {{
+              existingDetails &&
+              existingDetails.data &&
+              existingDetails.data.length > 0
+                ? "Update"
+                : "Save Details"
+            }}
           </b-button>
         </div>
       </template>
@@ -1265,7 +1367,7 @@
                     <v-select
                       v-model="statusFilter"
                       :options="statusOptions"
-                      placeholder="All Status"
+                      placeholder="- Select Status -"
                       :reduce="(option) => option.value"
                       label="text"
                       size="sm"
@@ -1281,7 +1383,7 @@
                     <v-select
                       v-model="accountFilter"
                       :options="assetAccountOptions"
-                      placeholder="All Accounts"
+                      placeholder="- Select Account -"
                       :reduce="(option) => option.value"
                       label="text"
                       size="sm"
@@ -1297,7 +1399,7 @@
                     <v-select
                       v-model="departmentFilter"
                       :options="departmentOptions"
-                      placeholder="All Departments"
+                      placeholder="- Select Office -"
                       :reduce="(option) => option.value"
                       label="text"
                       size="sm"
@@ -1404,7 +1506,9 @@
             <template v-slot:cell(PropertyNo)="row">
               <b>{{ row.item.PropertyNo }}</b>
               <br />
-              <small v-if="row.item.AssetTag">Asset Tag: {{ row.item.AssetTag }}</small>
+              <small v-if="row.item.AssetTag"
+                >Asset Tag: {{ row.item.AssetTag }}</small
+              >
             </template>
             <template v-slot:cell(IsAssigned)="row">
               <b-form-checkbox
@@ -1585,8 +1689,8 @@ export default {
         condition: "",
         remarks: "",
         itemHdrId: null,
-        ItemDtlId:null,
-        PropertyNo: ""
+        ItemDtlId: null,
+        PropertyNo: "",
       },
       assetDetails: [],
       assetList: [],
@@ -1606,6 +1710,12 @@ export default {
         {
           key: "AccountName",
           label: "Name",
+          sortable: true,
+          class: "text-left",
+        },
+        {
+          key: "EmpId",
+          label: "Employee ID",
           sortable: true,
           class: "text-left",
         },
@@ -1648,7 +1758,7 @@ export default {
         model: "",
       },
       existingDetails: null,
-      forUpdate: false,
+      forUpdate: null,
       supplierOptions: [],
       manufacturerOptions: [],
       // Supplier/Manufacturer filter properties
@@ -1670,7 +1780,7 @@ export default {
   computed: {
     filteredItems() {
       let items = this.assetList;
-      
+
       // Apply search filter first
       if (this.searchQuery) {
         const searchLower = this.searchQuery.toLowerCase();
@@ -1687,7 +1797,7 @@ export default {
           );
         });
       }
-      
+
       // Apply other filters
       if (this.statusFilter) {
         items = items.filter((item) => item.Status === this.statusFilter);
@@ -1724,13 +1834,16 @@ export default {
       return this.employeeList.filter(
         (emp) =>
           (emp.AccountName && emp.AccountName.toLowerCase().includes(f)) ||
-          (emp.DeptDesc && emp.DeptDesc.toLowerCase().includes(f))
+          (emp.EmpId && emp.EmpId.toString().toLowerCase().includes(f)) ||
+          (emp.DeptDesc && emp.DeptDesc.toLowerCase().includes(f)) ||
+          (emp.Position && emp.Position.toLowerCase().includes(f)) ||
+          (emp.Email && emp.Email.toLowerCase().includes(f))
       );
     },
-    paginatedEmployees() {
-      const start = (this.employeeCurrentPage - 1) * this.employeePerPage;
-      return this.filteredEmployees.slice(start, start + this.employeePerPage);
-    },
+    // paginatedEmployees() {
+    //   const start = (this.employeeCurrentPage - 1) * this.employeePerPage;
+    //   return this.filteredEmployees.slice(start, start + this.employeePerPage);
+    // },
     accountableEmployeeDisplay: {
       get() {
         return this.assetInfo.accountableEmployee || "";
@@ -1819,21 +1932,87 @@ export default {
         this.actionDetails.actualUserID = null;
       }
     },
+    "assetInfo.assetSubcategory"(newValue) {
+      if (newValue) {
+        this.generateAssetTag();
+      }
+    },
   },
 
   methods: {
+    generateAssetTag() {
+      const subcategoryPrefixMap = {
+        CPU: "KC",
+        MONITOR: "KM",
+        PRINTER: "KP",
+        SCANNER: "KS",
+        "BARCODE READER": "KB",
+        LAPTOP: "KL",
+        SERVER: "KSRV",
+        SWITCH: "KSW",
+        "ACCESS POINT": "KAP",
+      };
+
+      // Get the subcategory text from the selected option
+      const subcategoryText =
+        typeof this.assetInfo.assetSubcategory === "object"
+          ? this.assetInfo.assetSubcategory.text
+          : this.getSubcategoryText(this.assetInfo.assetSubcategory);
+
+      const prefix = subcategoryPrefixMap[subcategoryText?.toUpperCase()];
+
+      if (prefix) {
+        // Auto-generate tag with prefix and sequential number
+        const nextNumber = this.getNextAssetNumber(prefix);
+        this.assetInfo.assetTag = `${prefix}-${nextNumber
+          .toString()
+          .padStart(4, "0")}`;
+      }
+      // If no prefix match, leave assetTag empty for manual entry
+    },
+
+    getSubcategoryText(subcategoryId) {
+      const subcategory = this.assetSubcategoryOptions.find(
+        (option) => option.value === subcategoryId
+      );
+      return subcategory ? subcategory.text : "";
+    },
+
+    getNextAssetNumber(prefix) {
+      // This would ideally come from an API call to get the next sequence
+      // For now, we'll use a simple increment based on existing assets
+      const existingAssets = this.assetList.filter(
+        (asset) => asset.AssetTag && asset.AssetTag.startsWith(prefix)
+      );
+
+      if (existingAssets.length === 0) {
+        return 1;
+      }
+
+      // Extract numbers from existing tags and find the highest
+      const numbers = existingAssets.map((asset) => {
+        const match = asset.AssetTag.match(new RegExp(`${prefix}-(\\d+)`));
+        return match ? parseInt(match[1]) : 0;
+      });
+
+      return Math.max(...numbers) + 1;
+    },
+
     withPopper(dropdownList, component, { width }) {
-      dropdownList.style.width = width; 
+      dropdownList.style.width = width;
       const popper = createPopper(component.$refs.toggle, dropdownList, {
-        placement: 'bottom-start', 
+        placement: "bottom-start",
         modifiers: [
-          { name: 'offset', options: { offset: [0, 2] } },
+          { name: "offset", options: { offset: [0, 2] } },
           {
-            name: 'toggleClass',
+            name: "toggleClass",
             enabled: true,
-            phase: 'write',
+            phase: "write",
             fn({ state }) {
-              component.$el.classList.toggle('drop-up', state.placement === 'top');
+              component.$el.classList.toggle(
+                "drop-up",
+                state.placement === "top"
+              );
             },
           },
         ],
@@ -1853,14 +2032,14 @@ export default {
     },
     formatCost(value) {
       // Remove non-numeric characters except decimal point
-      let cleanValue = value.replace(/[^0-9.]/g, '');
-      
+      let cleanValue = value.replace(/[^0-9.]/g, "");
+
       // Remove multiple decimal points
-      const parts = cleanValue.split('.');
+      const parts = cleanValue.split(".");
       if (parts.length > 2) {
-        cleanValue = parts[0] + '.' + parts.slice(1).join('');
+        cleanValue = parts[0] + "." + parts.slice(1).join("");
       }
-      
+
       // Format as currency
       if (cleanValue) {
         const numValue = parseFloat(cleanValue);
@@ -1872,7 +2051,7 @@ export default {
           }).format(numValue);
         }
       } else {
-        this.assetInfo.cost = '';
+        this.assetInfo.cost = "";
       }
     },
     showAlert(message, variant) {
@@ -1911,15 +2090,25 @@ export default {
         console.error("Failed to load categories", error);
       }
     },
-    async getSubcategories() {
-      if (!this.assetInfo.assetCategory) {
+    async getSubcategories(categoryId = null) {
+      const targetCategoryId =
+        categoryId ||
+        this.assetInfo.assetCategory?.value ||
+        this.assetInfo.assetCategory;
+      if (!targetCategoryId) {
         this.assetSubcategoryOptions = [];
         return;
       }
       try {
-        const res = await this.$axios.get(
-          `${this.$axios.defaults.baseURL}/file-maintenance/subcategory/get-all-by-category-id/?RefCategoryId=${this.assetInfo.assetCategory}`
-        );
+        let url;
+        if (!this.isEditMode) {
+          // When adding a new asset, use the get-asset endpoint
+          url = `${this.$axios.defaults.baseURL}/file-maintenance/subcategory/get-asset?SubcategoryId=0`;
+        } else {
+          // When editing, use the existing endpoint
+          url = `${this.$axios.defaults.baseURL}/file-maintenance/subcategory/get-all-by-category-id/?RefCategoryId=${targetCategoryId}`;
+        }
+        const res = await this.$axios.get(url);
         this.assetSubcategoryOptions = res.data
           .map((s) => ({ value: s.subcategory_id, text: s.subcategory_desc }))
           .sort((a, b) => a.text.localeCompare(b.text));
@@ -2128,27 +2317,25 @@ export default {
         serialNumber: row.item.SerialNumber || "",
         model: row.item.Model || "",
       };
-      
-      // Check if any additional details exist to determine update vs insert
-      const hasExistingData = 
-        this.additionalDetails.supplier ||
-        this.additionalDetails.manufacturer ||
-        this.additionalDetails.assetTag ||
-        this.additionalDetails.serialNumber ||
-        this.additionalDetails.model;
-      
-      this.forUpdate = hasExistingData;
-      console.log("Additional details found:", hasExistingData);
 
       await this.getCategories();
-      // Find the category option object that matches the RefCategoryId
-      const categoryOption = this.assetCategoryOptions.find(option => option.value === row.item.RefCategoryId);
+      const categoryOption = this.assetCategoryOptions.find(
+        (option) => option.value === row.item.RefCategoryId
+      );
       this.assetInfo.assetCategory = categoryOption || null;
 
-      await this.getSubcategories();
-      // Find the subcategory option object that matches the SubcategoryId
-      const subcategoryOption = this.assetSubcategoryOptions.find(option => option.value === row.item.SubcategoryId);
+      await this.getSubcategories(row.item.RefCategoryId);
+      const subcategoryOption = this.assetSubcategoryOptions.find(
+        (option) => option.value === row.item.SubcategoryId
+      );
       this.assetInfo.assetSubcategory = subcategoryOption || null;
+
+      // Generate formatted asset tag for Other Details if subcategory matches
+      if (this.assetInfo.assetSubcategory && !row.item.AssetTag) {
+        this.generateAssetTag();
+        // Update additionalDetails with the generated tag
+        this.additionalDetails.assetTag = this.assetInfo.assetTag;
+      }
 
       this.$bvModal.show("bv-modal-edit-asset");
     },
@@ -2176,6 +2363,18 @@ export default {
       this.$bvModal.hide("bv-modal-employee-selection");
     },
     showOtherDetailsModal() {
+      // Check if any additional details exist to determine update vs insert
+      const hasExistingData =
+        this.additionalDetails.supplier ||
+        this.additionalDetails.manufacturer ||
+        this.additionalDetails.assetTag ||
+        this.additionalDetails.serialNumber ||
+        this.additionalDetails.model;
+
+      this.forUpdate = hasExistingData;
+      console.log(this.forUpdate);
+      console.log("Additional details found:", hasExistingData);
+
       this.$bvModal.show("bv-modal-other-details");
     },
     closeOtherDetailsModal() {
@@ -2200,11 +2399,11 @@ export default {
               Reason: "",
               AssetTag: this.additionalDetails.assetTag || "",
               ItemHdrId: this.assetInfo.itemHdrId || "",
-              user_id: localStorage.id || ""
+              user_id: localStorage.id || "",
             },
             headers: {
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           });
         } else {
           // Insert new details
@@ -2221,15 +2420,16 @@ export default {
               Reason: "",
               AssetTag: this.additionalDetails.assetTag || "",
               ItemHdrId: this.assetInfo.itemHdrId || "",
-              user_id: localStorage.id || ""
+              user_id: localStorage.id || "",
             },
             headers: {
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           });
         }
-        
+
         this.showAlert("Other details saved successfully!", "success");
+        await this.getAllAssets();
         this.closeOtherDetailsModal();
       } catch (error) {
         console.error("Failed to save other details", error);
@@ -2239,8 +2439,18 @@ export default {
     onEmployeeSelected(items) {
       if (items && items.length > 0) {
         const emp = items[0];
-        const name = emp.AccountName || emp.name;
-        const empId = emp.EmpId || emp.id || emp.AccountId;
+        const name =
+          emp.AccountName ||
+          emp.name ||
+          `${emp.FirstName || ""} ${emp.LastName || ""}`.trim() ||
+          "Unknown";
+        const empId =
+          emp.EmpId ||
+          emp.id ||
+          emp.AccountId ||
+          emp.employee_id ||
+          emp.EmployeeId ||
+          "";
 
         if (this.employeeModalContext === "action") {
           // Assign / Transfer panels
@@ -2344,23 +2554,20 @@ export default {
     async confirmTransferAsset() {
       try {
         const assignmentData = {
-          ItemHdrId: this.assetDetails.ItemHdrId || null,
-          IsTransfer: false,
-          AssignmentId: null,
           AssignedEmpId: this.actionDetails.accountableEmployeeID || "",
           EmployeeAssigned: this.actionDetails.accountableEmployee || "",
-          UserEmpId: this.actionDetails.actualUserID,
+          UserEmpId: this.actionDetails.actualUserID || "",
           EmployeeUser: this.actionDetails.actualUser || "",
           AssignedFuncPerOfficeId:
             this.actionDetails.departmentAssigned || null,
           LocationId: this.actionDetails.location || null,
           Condition: this.actionDetails.condition || "",
           Remarks: this.actionDetails.remarks || "",
-          CreatedBy: localStorage.id,
           UpdatedBy: localStorage.id,
         };
-        await this.$axios.post(
-          `${this.$axios.defaults.baseURL}/items/assign`,
+
+        await this.$axios.put(
+          `${this.$axios.defaults.baseURL}/items/transfer/${this.assetDetails.AssignmentId}`,
           assignmentData
         );
         this.showAlert("Asset transferred successfully!", "success");
@@ -2498,7 +2705,7 @@ export default {
     // ── Misc ──────────────────────────────────────────────────────────────
     viewMaintenance(row) {
       try {
-        this.$router.push(`/assets/${row.item.AccountCode}`);
+        this.$router.push(`/assets/${row.item.ItemHdrId}`);
       } catch (e) {
         console.log("Error passing Employee ID: ", e);
       }
@@ -2537,7 +2744,7 @@ export default {
         remarks: "",
         itemHdrId: null,
         ItemDtlId: null,
-        PropertyNo: ""
+        PropertyNo: "",
       };
       this.assetCategoryOptions = [];
       this.assetSubcategoryOptions = [];
@@ -2547,6 +2754,11 @@ export default {
       this.isEditMode = false;
       this.$bvModal.hide("bv-modal-add-asset");
       this.$bvModal.hide("bv-modal-edit-asset");
+    },
+    initializeAddAsset() {
+      this.isEditMode = false;
+      // Load all available subcategories for adding assets
+      this.getSubcategories();
     },
     async closeModalView() {
       this.$refs.assetTable.clearSelected();
@@ -2558,8 +2770,11 @@ export default {
         const assetData = {
           Qty: "1",
           RefAccountId: this.assetInfo.assetAccount,
-          RefCategoryId: this.assetInfo.assetCategory,
-          SubcategoryId: this.assetInfo.assetSubcategory,
+          RefCategoryId:
+            this.assetInfo.assetCategory?.value || this.assetInfo.assetCategory,
+          SubcategoryId:
+            this.assetInfo.assetSubcategory?.value ||
+            this.assetInfo.assetSubcategory,
           FuncPerOfficeId: this.assetInfo.assetDepartment,
           DateAcquired: this.assetInfo.dateAcquired,
           Description: this.assetInfo.itemDescription,
@@ -2594,51 +2809,48 @@ export default {
         throw error;
       }
     },
-    async updateAsset() {
-      try {
-        const assetData = {
-          ItemId: this.assetDetails.ItemHdrId,
-          Qty: "1",
-          RefAccountId: this.assetInfo.assetAccount,
-          RefCategoryId: this.assetInfo.assetCategory,
-          SubcategoryId: this.assetInfo.assetSubcategory,
-          FuncPerOfficeId: this.assetInfo.assetDepartment,
-          DateAcquired: this.assetInfo.dateAcquired,
-          Description: this.assetInfo.itemDescription,
-          UnitId: this.assetInfo.unit,
-          UnitCost: this.assetInfo.cost,
-          StatusId: this.getStatusId(this.assetInfo.status),
-          IsActive: "1",
-          IsDonation: "0",
-          Remarks: this.assetInfo.remarks,
-          assetTag: this.assetInfo.assetTag,
-          UpdatedBy: localStorage.id,
-        };
-        await this.$axios.put(
-          `${this.$axios.defaults.baseURL}/items/update`,
-          assetData
-        );
-        this.showAlert("Asset updated successfully!", "success");
-        this.$bvModal.hide("bv-modal-edit-asset");
-        this.getAllAssets();
-      } catch (error) {
-        console.error("Failed to update asset", error);
-        this.showAlert("Failed to update asset", "danger");
-        throw error;
-      }
-    },
     async saveAssetChanges() {
       try {
         let itemHdrId = null;
 
         if (this.isEditMode) {
-          await this.updateAsset();
-          itemHdrId = this.assetInfo.itemId;
+          // Update existing asset
+          const assetData = {
+            ItemId: this.assetInfo.itemHdrId,
+            Qty: "1",
+            RefAccountId: this.assetInfo.assetAccount,
+            RefCategoryId:
+              this.assetInfo.assetCategory?.value ||
+              this.assetInfo.assetCategory,
+            SubcategoryId:
+              this.assetInfo.assetSubcategory?.value ||
+              this.assetInfo.assetSubcategory,
+            FuncPerOfficeId: this.assetInfo.assetDepartment,
+            DateAcquired: this.assetInfo.dateAcquired,
+            Description: this.assetInfo.itemDescription,
+            UnitId: this.assetInfo.unit,
+            UnitCost: this.assetInfo.cost,
+            StatusId: this.getStatusId(this.assetInfo.status),
+            IsActive: "1",
+            IsDonation: "0",
+            Remarks: this.assetInfo.remarks,
+            assetTag: this.assetInfo.assetTag,
+            UpdatedBy: localStorage.id,
+          };
+          await this.$axios.put(
+            `${this.$axios.defaults.baseURL}/items/update/${this.assetInfo.itemHdrId}`,
+            assetData
+          );
+          this.showAlert("Asset updated successfully!", "success");
+          this.$bvModal.hide("bv-modal-edit-asset");
+          this.getAllAssets();
+          itemHdrId = this.assetInfo.itemHdrId;
         } else {
+          // Create new asset
           const result = await this.saveAsset();
           itemHdrId = result.itemHdrId;
         }
-        console.log(this.assetInfo, "GHHHHHHHH");
+
         if (!this.assetInfo.removeAssignment) {
           const assignmentData = {
             ItemHdrId: itemHdrId || null,
@@ -2646,7 +2858,7 @@ export default {
             AssignmentId: null,
             AssignedEmpId: this.assetInfo.accountableEmployeeID || "",
             EmployeeAssigned: this.assetInfo.accountableEmployee || "",
-            UserEmpId: this.assetInfo.actualUserID,
+            UserEmpId: this.assetInfo.actualUserID || "",
             EmployeeUser: this.assetInfo.actualUser || "",
             AssignedFuncPerOfficeId: this.assetInfo.departmentAssigned || null,
             LocationId: this.assetInfo.location || null,
@@ -2655,7 +2867,6 @@ export default {
             CreatedBy: localStorage.id,
             UpdatedBy: localStorage.id,
           };
-          console.log("HERE");
           await this.$axios.post(
             `${this.$axios.defaults.baseURL}/items/assign`,
             assignmentData
@@ -2668,6 +2879,7 @@ export default {
         }
       } catch (error) {
         console.error("Failed to save asset changes", error);
+        this.showAlert("Failed to save asset changes", "danger");
       }
     },
   },
@@ -2702,5 +2914,61 @@ export default {
   margin-right: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
+}
+
+.assignment-section {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.assignment-info {
+  background: white;
+}
+
+.assignment-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.assignment-item {
+  flex: 1;
+  min-width: 200px;
+}
+
+.assignment-item.full-width {
+  flex: 1;
+}
+
+.assignment-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.assignment-value {
+  font-size: 0.9rem;
+  color: #495057;
+  margin: 0;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
 }
 </style>

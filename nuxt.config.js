@@ -59,7 +59,7 @@ module.exports = {
    ** Build configuration
    */
   axios: {
-    baseURL: "http://0.0.0.0:5900/api-aims",
+    baseURL: "http://192.168.0.108:5900/api-aims",
   },
 
   build: {

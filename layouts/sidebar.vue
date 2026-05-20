@@ -4,7 +4,7 @@
       <div class="sidebar-header">
         <div>
           <b-img
-            src="/AIMS.png"
+            src="/aims.png"
             class="bfiImage"
             style="width: 80%; height: auto"
             center

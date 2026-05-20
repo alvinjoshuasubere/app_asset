@@ -55,10 +55,9 @@
 
             <b-collapse id="collapse-1">
               <li
-                v-for="(adminsubmenu, index) in adminsubmenus"
+                v-for="(adminsubmenu, index) in filteredAdminSubmenus"
                 :key="index"
                 class="adminSubMenusStyle"
-                v-if="hasAccess(adminsubmenu.action)"
               >
                 <router-link :id="'sb-' + index" :to="adminsubmenu.path">
                   <b-row>
@@ -112,10 +111,9 @@
 
             <b-collapse id="collapse-2">
               <li
-                v-for="(file, index) in files"
+                v-for="(file, index) in filteredFiles"
                 :key="index"
                 class="adminSubMenusStyle"
-                v-if="hasAccess(file.action)"
               >
                 <router-link :id="'sb-' + index" :to="file.path">
                   <b-row>
@@ -132,8 +130,8 @@
               </li>
             </b-collapse>
           </li>
-          <hr style="background-color: white;">
-          <li v-for="(link, index) in links" :key="index" v-if="hasAccess(link.action)">
+          <hr style="background-color: white" />
+          <li v-for="(link, index) in filteredLinks" :key="index">
             <router-link class="my-1" :id="'sb1-' + index" :to="link.path">
               <b-row>
                 <b-col cols="2">
@@ -161,7 +159,7 @@
         <span class="mb-1" style="position: relative; padding-left: 1.5rem">
           <b-row>
             <b style="font-size: 10px; font-size: 12px; color: #343a40"
-              >{{user.name}}&nbsp;</b
+              >{{ user.name }}&nbsp;</b
             >
           </b-row>
           <b-row>
@@ -173,7 +171,7 @@
                 border-radius: 100px;
                 padding: 3px 6px;
               "
-              >{{user.role}}</b-badge
+              >{{ user.role }}</b-badge
             >
           </b-row>
         </span>
@@ -221,7 +219,7 @@
             </small>
             <template #modal-footer>
               <div class="w-100">
-                 <b-button
+                <b-button
                   variant="primary"
                   size="sm"
                   class="float-right primaryBtn"
@@ -238,7 +236,6 @@
                 >
                   Cancel
                 </b-button>
-               
               </div>
             </template>
           </b-modal>
@@ -257,21 +254,19 @@ import axios from "axios";
 import moment from "moment";
 
 export default {
-  
   data() {
     return {
       disp: false,
       show: false,
       myInterval: null,
-      role: localStorage.role,
-      user: localStorage.name,
+      role: localStorage.getItem("role") || null,
       modules: [],
       activeadminsubmenus: [],
       activelinks: [],
       clickStatus: false,
-      user:{
-        name : null,
-        role : null
+      user: {
+        name: null,
+        role: null,
       },
       adminsubmenus: [
         {
@@ -372,12 +367,30 @@ export default {
   },
   mounted() {},
   async created() {
-    this.user.name = JSON.parse(localStorage.getItem('user') || '""');
-    this.user.role = localStorage.role;
-    if (localStorage.accessRights) {
-      const access = JSON.parse(localStorage.accessRights);
-      const actions = access.flatMap((menu) =>
-        menu.actions.map((action) => action.actionname)
+    // Load user information safely from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (parsed && typeof parsed === "object") {
+          this.user.name = parsed.name || parsed.username || null;
+          this.user.role = parsed.role || localStorage.getItem("role") || null;
+        } else {
+          this.user.name = String(parsed);
+          this.user.role = localStorage.getItem("role") || null;
+        }
+      } catch (e) {
+        this.user.name = storedUser;
+        this.user.role = localStorage.getItem("role") || null;
+      }
+    } else {
+      this.user.role = localStorage.getItem("role") || null;
+    }
+
+    if (localStorage.getItem("accessRights")) {
+      const access = JSON.parse(localStorage.getItem("accessRights"));
+      const actions = (access || []).flatMap((menu) =>
+        (menu.actions || []).map((action) => action.actionname)
       );
 
       // Filter and assign data based on actions
@@ -399,27 +412,28 @@ export default {
   methods: {
     hasAccess(actionName) {
       try {
-        const accessRights = localStorage.getItem('accessRights');
+        const accessRights = localStorage.getItem("accessRights");
         if (!accessRights) return false;
-        
+
         const userAccessRights = JSON.parse(accessRights);
-        
+
         // Check through modules and their actions
         for (const module of userAccessRights) {
           if (module.actions && Array.isArray(module.actions)) {
-            const hasAction = module.actions.some(action => 
-              action.actionname === actionName ||
-              action.action_description === actionName ||
-              action.right_name === actionName ||
-              action.right === actionName ||
-              action === actionName
+            const hasAction = module.actions.some(
+              (action) =>
+                action.actionname === actionName ||
+                action.action_description === actionName ||
+                action.right_name === actionName ||
+                action.right === actionName ||
+                action === actionName
             );
             if (hasAction) return true;
           }
         }
         return false;
       } catch (error) {
-        console.error('Error checking access rights:', error);
+        console.error("Error checking access rights:", error);
         return false;
       }
     },
@@ -496,7 +510,7 @@ export default {
       this.$router.push(`/`);
     },
     openPDF() {
-      const role = localStorage.role ? localStorage.role.toLowerCase() : '';
+      const role = localStorage.role ? localStorage.role.toLowerCase() : "";
       if (role.includes("admin")) {
         window.open("/User_Guide_Admin_1.6.pdf");
       } else if (role.includes("controller")) {
@@ -665,6 +679,17 @@ export default {
   },
 
   computed: {
+    filteredAdminSubmenus() {
+      return this.adminsubmenus.filter((submenu) =>
+        this.hasAccess(submenu.action)
+      );
+    },
+    filteredFiles() {
+      return this.files.filter((file) => this.hasAccess(file.action));
+    },
+    filteredLinks() {
+      return this.links.filter((link) => this.hasAccess(link.action));
+    },
     checkAdmin() {
       for (let i = 0; i < this.modules.length; i++) {
         if (this.modules[i].modulename.toLowerCase() === "admin") {
@@ -795,7 +820,7 @@ ul ul a {
 .noti-footer {
   height: 0.5rem;
 }
-.badgeRole{
+.badgeRole {
   background: #082439;
   color: white;
 }

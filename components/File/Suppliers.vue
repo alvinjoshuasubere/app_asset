@@ -88,7 +88,7 @@
                   class="defaultBtn"
                   style="background: #0b345f; font-size: 13px"
                   v-b-tooltip.hover
-                  title="Create MTOP"
+                  title="Add New Supplier"
                   @click="$bvModal.show('bv-modal-create')"
                 >
                   <font-awesome-icon icon="circle-plus" class="icon" />
@@ -129,63 +129,23 @@
                   {{ row.item.is_active ? "Active" : "Inactive" }}
                 </b-badge>
               </template>
-              <!-- <template v-slot:cell(FullName)="row">
-                  <span
-                    ><b>{{ row.item.FullName }}</b></span
-                  >
-                  <br />
-                  <small>{{ row.item.Address }}</small>
-                </template> -->
-              <!-- <template v-slot:cell(AppStatus)="row">
-                  <b-badge
-                    :class="[
-                      'statusDesign',
-                      'd-block',
-                      row.item.AppStatus.toLowerCase() + 'Stat',
-                    ]"
-                    >&nbsp;{{ row.item.AppStatus }}
-                  </b-badge>
-                </template>
-                <template v-slot:cell(actions)="row">
-                  <b-dropdown class="dropdownBtn" right variant="link" no-caret>
-                    <template #button-content>
-                      <font-awesome-icon icon="ellipsis-vertical" />
-                    </template>
-                    <b-dropdown-header class="dropdown-header">
-                      Actions
-                    </b-dropdown-header>
-                    <b-dropdown-item-button @click="openEditModal(row)">
-                      <font-awesome-icon
-                        icon="pen-to-square"
-                        class="viewIcon mr-2"
-                        small
-                      />Edit</b-dropdown-item-button
-                    >
-                    <b-dropdown-item-button @click="getOwnerID(row.item)">
-                      <font-awesome-icon
-                        icon="eye"
-                        class="viewIcon mr-2"
-                        small
-                      />View MTOP</b-dropdown-item-button
-                    >
-                  </b-dropdown>
-                </template> -->
-              <!-- <template v-slot:table-caption>
-                  <b-row align-h="end">
-                    <b-col cols="6">{{ bottomLabel }}</b-col>
-                    <b-col cols="6">
-                      <b-pagination
-                        v-model="currentPage"
-                        class="mr-2"
-                        :total-rows="totalRows"
-                        :per-page="perPage"
-                        pills
-                        align="right"
-                        size="sm"
-                      ></b-pagination>
-                    </b-col>
-                  </b-row>
-                </template> -->
+              <template v-slot:cell(actions)="row">
+                <b-dropdown class="dropdownBtn" right variant="link" no-caret>
+                  <template #button-content>
+                    <font-awesome-icon icon="bars" />
+                  </template>
+                  <b-dropdown-header class="dropdown-header">
+                    Actions
+                  </b-dropdown-header>
+                  <b-dropdown-item-button @click="openEditModal(row.item)">
+                    <font-awesome-icon
+                      icon="pen-to-square"
+                      class="viewIcon mr-2"
+                      small
+                    />Edit
+                  </b-dropdown-item-button>
+                </b-dropdown>
+              </template>
               <template v-slot:table-caption>
                 <b-row align-h="end">
                   <b-col cols="6">{{ bottomLabel }}</b-col>
@@ -221,6 +181,77 @@
       />
       {{ alert.message }}
     </b-alert>
+
+    <!-- Add/Edit Supplier Modal -->
+    <b-modal
+      id="bv-modal-create"
+      :title="isEditMode ? 'Edit Supplier' : 'Add New Supplier'"
+      no-close-on-backdrop
+      header-class="assetColor"
+      @hidden="resetForm"
+    >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="users" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Add/Edit new supplier</span>
+            <span class="modal-title-desc">Enter supplier details below</span>
+          </div>
+        </div>
+      </template>
+      <b-form>
+        <b-form-group label="Supplier Name" label-for="supplierName">
+          <b-form-input
+            id="supplierName"
+            v-model="supplierForm.supplierName"
+            placeholder="Enter supplier name"
+            required
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group label="Supplier Address" label-for="supplierAddress">
+          <b-form-input
+            id="supplierAddress"
+            v-model="supplierForm.supplierAddress"
+            placeholder="Enter supplier address"
+            required
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group label="Contact Number" label-for="supplierContactNo">
+          <b-form-input
+            id="supplierContactNo"
+            v-model="supplierForm.supplierContactNo"
+            placeholder="Enter contact number"
+            required
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group v-if="isEditMode" label="Status">
+          <b-form-checkbox v-model="supplierForm.isActive">
+            Active
+          </b-form-checkbox>
+        </b-form-group>
+      </b-form>
+      <template v-slot:modal-footer>
+        <div>
+          <b-button size="sm" class="greyBtn mr-2" @click="resetForm()"
+            >Cancel</b-button
+          >
+          <b-button
+            @click="saveSupplier"
+            :disabled="isSaving"
+            size="sm"
+            class="primaryBtn"
+          >
+            <b-spinner v-if="isSaving" small></b-spinner>
+            {{ isSaving ? "Saving..." : "Save" }}
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -244,6 +275,14 @@ export default {
       filter: "",
       suppliersList: [],
       isActive: 1,
+      isEditMode: false,
+      editingId: null,
+      supplierForm: {
+        supplierName: "",
+        supplierAddress: "",
+        supplierContactNo: "",
+        isActive: true,
+      },
 
       alert: {
         showAlert: 0,
@@ -359,9 +398,111 @@ export default {
         this.showLoading = false;
       }
     },
+    async addSupplier(data) {
+      try {
+        const res = await this.$axios.post(
+          `${this.$axios.defaults.baseURL}/file-maintenance/suppliers/add`,
+          {
+            SupplierName: data.SupplierName,
+            SupplierAddress: data.SupplierAddress,
+            SupplierContactNo: data.SupplierContactNo,
+            CreatedBy: data.CreatedBy,
+          }
+        );
+        return res.data;
+      } catch (error) {
+        console.error("Failed to add supplier", error);
+        throw error;
+      }
+    },
+    async updateSupplier(id, data) {
+      try {
+        const res = await this.$axios.put(
+          `${this.$axios.defaults.baseURL}/file-maintenance/suppliers/update/${id}`,
+          {
+            SupplierName: data.SupplierName,
+            SupplierAddress: data.SupplierAddress,
+            SupplierContactNo: data.SupplierContactNo,
+            IsActive: data.IsActive,
+            UpdatedBy: data.UpdatedBy,
+          }
+        );
+        return res.data;
+      } catch (error) {
+        console.error("Failed to update supplier", error);
+        throw error;
+      }
+    },
     clearFilter() {
       this.filter = "";
       this.getSuppliers();
+    },
+    openEditModal(supplier) {
+      this.isEditMode = true;
+      this.editingId = supplier.supplier_id || supplier.id;
+      this.supplierForm = {
+        supplierName: supplier.supplier_name,
+        supplierAddress: supplier.supplier_address,
+        supplierContactNo: supplier.supplier_contactno,
+        isActive: supplier.is_active,
+      };
+      this.$bvModal.show("bv-modal-create");
+    },
+    resetForm() {
+      this.isEditMode = false;
+      this.editingId = null;
+      this.supplierForm = {
+        supplierName: "",
+        supplierAddress: "",
+        supplierContactNo: "",
+        isActive: true,
+      };
+      this.$bvModal.hide("bv-modal-create");
+    },
+    async saveSupplier() {
+      try {
+        if (
+          !this.supplierForm.supplierName ||
+          !this.supplierForm.supplierAddress ||
+          !this.supplierForm.supplierContactNo
+        ) {
+          this.showAlert("Please fill all required fields", "warning");
+          return;
+        }
+
+        if (this.isEditMode) {
+          await this.updateSupplier(this.editingId, {
+            SupplierName: this.supplierForm.supplierName,
+            SupplierAddress: this.supplierForm.supplierAddress,
+            SupplierContactNo: this.supplierForm.supplierContactNo,
+            IsActive: this.supplierForm.isActive ? 1 : 0,
+            UpdatedBy: localStorage.id,
+          });
+          this.showAlert("Supplier updated successfully!", "success");
+        } else {
+          await this.addSupplier({
+            SupplierName: this.supplierForm.supplierName,
+            SupplierAddress: this.supplierForm.supplierAddress,
+            SupplierContactNo: this.supplierForm.supplierContactNo,
+            CreatedBy: localStorage.id,
+          });
+          this.showAlert("Supplier added successfully!", "success");
+        }
+
+        this.$bvModal.hide("bv-modal-create");
+        this.resetForm();
+        this.getSuppliers();
+      } catch (error) {
+        console.error("Failed to save supplier", error);
+        this.showAlert("Failed to save supplier", "danger");
+      }
+    },
+    showAlert(message, variant) {
+      this.alert = {
+        showAlert: true,
+        variant,
+        message,
+      };
     },
   },
 };

@@ -129,6 +129,23 @@
                   {{ row.item.is_active ? "Active" : "Inactive" }}
                 </b-badge>
               </template>
+              <template v-slot:cell(actions)="row">
+                <b-dropdown class="dropdownBtn" right variant="link" no-caret>
+                  <template #button-content>
+                    <font-awesome-icon icon="bars" />
+                  </template>
+                  <b-dropdown-header class="dropdown-header">
+                    Actions
+                  </b-dropdown-header>
+                  <b-dropdown-item-button @click="openEditModal(row.item)">
+                    <font-awesome-icon
+                      icon="pen-to-square"
+                      class="viewIcon mr-2"
+                      small
+                    />Edit
+                  </b-dropdown-item-button>
+                </b-dropdown>
+              </template>
               <!-- <template v-slot:cell(FullName)="row">
                   <span
                     ><b>{{ row.item.FullName }}</b></span
@@ -221,6 +238,65 @@
       />
       {{ alert.message }}
     </b-alert>
+
+    <!-- Add/Edit Manufacturer Modal -->
+    <b-modal
+      id="bv-modal-create"
+      :title="isEditMode ? 'Edit Manufacturer' : 'Add New Manufacturer'"
+      header-class="assetColor"
+      no-close-on-backdrop
+      @hidden="resetForm"
+    >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon
+              :icon="isEditMode ? 'pen-to-square' : 'circle-plus'"
+            />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">{{
+              isEditMode ? "Edit Manufacturer" : "Add New Manufacturer"
+            }}</span>
+            <span class="modal-title-desc"
+              >Enter manufacturer details below</span
+            >
+          </div>
+        </div>
+      </template>
+      <b-form>
+        <b-form-group label="Manufacturer Name" label-for="manufacturerName">
+          <b-form-input
+            id="manufacturerName"
+            v-model="manufacturerForm.manufacturerName"
+            placeholder="Enter manufacturer name"
+            required
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group v-if="isEditMode" label="Status">
+          <b-form-checkbox v-model="manufacturerForm.isActive">
+            Active
+          </b-form-checkbox>
+        </b-form-group>
+      </b-form>
+      <template v-slot:modal-footer>
+        <div>
+          <b-button size="sm" class="greyBtn mr-2" @click="resetForm()"
+            >Cancel</b-button
+          >
+          <b-button
+            :disabled="isSaving"
+            @click="saveManufacturer"
+            size="sm"
+            class="primaryBtn"
+          >
+            <b-spinner v-if="isSaving" small></b-spinner>
+            {{ isSaving ? "Saving..." : "Save" }}
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -244,7 +320,13 @@ export default {
       filter: "",
       manufacturersList: [],
       isActive: 1,
-
+      isEditMode: false,
+      editingId: null,
+      manufacturerForm: {
+        manufacturerName: "",
+        isActive: true,
+      },
+      isSaving: false,
       alert: {
         showAlert: 0,
         variant: "",
@@ -352,6 +434,93 @@ export default {
         this.isBusy = false;
         this.showLoading = false;
       }
+    },
+    async addManufacturer(data) {
+      try {
+        const res = await this.$axios.post(
+          `${this.$axios.defaults.baseURL}/file-maintenance/manufacturers/add`,
+          {
+            ManufacturerName: data.ManufacturerName,
+            CreatedBy: data.CreatedBy,
+          }
+        );
+        return res.data;
+      } catch (error) {
+        console.error("Failed to add manufacturer", error);
+        throw error;
+      }
+    },
+    async updateManufacturer(id, data) {
+      try {
+        const res = await this.$axios.put(
+          `${this.$axios.defaults.baseURL}/file-maintenance/manufacturers/update/${id}`,
+          {
+            ManufacturerName: data.ManufacturerName,
+            IsActive: data.IsActive,
+            UpdatedBy: data.UpdatedBy,
+          }
+        );
+        return res.data;
+      } catch (error) {
+        console.error(error.response.data.error, "danger");
+        throw error;
+      }
+    },
+    openEditModal(manufacturer) {
+      this.isEditMode = true;
+      this.editingId = manufacturer.manufacturer_id;
+      this.manufacturerForm = {
+        manufacturerName: manufacturer.manufacturer_name,
+        isActive: manufacturer.is_active,
+      };
+      this.$bvModal.show("bv-modal-create");
+    },
+    resetForm() {
+      this.isEditMode = false;
+      this.editingId = null;
+      this.manufacturerForm = {
+        manufacturerName: "",
+        isActive: true,
+      };
+      this.$bvModal.hide("bv-modal-create");
+    },
+    async saveManufacturer() {
+      try {
+        if (!this.manufacturerForm.manufacturerName) {
+          this.showAlert("Please enter manufacturer name", "warning");
+          return;
+        }
+
+        this.isSaving = true;
+        if (this.isEditMode) {
+          await this.updateManufacturer(this.editingId, {
+            ManufacturerName: this.manufacturerForm.manufacturerName,
+            IsActive: this.manufacturerForm.isActive ? 1 : 0,
+            UpdatedBy: localStorage.id,
+          });
+          this.showAlert("Manufacturer updated successfully!", "success");
+        } else {
+          await this.addManufacturer({
+            ManufacturerName: this.manufacturerForm.manufacturerName,
+            CreatedBy: localStorage.id,
+          });
+          this.showAlert("Manufacturer added successfully!", "success");
+        }
+
+        this.resetForm();
+        await this.getManufacturers();
+      } catch (error) {
+        this.showAlert(error.response.data.error, "danger");
+      } finally {
+        this.isSaving = false;
+      }
+    },
+    showAlert(message, variant) {
+      this.alert = {
+        showAlert: true,
+        variant,
+        message,
+      };
     },
     clearFilter() {
       this.filter = "";

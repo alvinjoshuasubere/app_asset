@@ -736,11 +736,42 @@
                 name="has-warranty"
                 value="true"
                 unchecked-value="false"
+                :disabled="!assetInfo.dateAcquired"
                 class="ml-3 mb-0"
               >
                 Has Warranty
               </b-form-checkbox>
             </div>
+          </b-col>
+        </b-row>
+
+        <!-- Warranty Period and Date Expired Fields (only show when hasWarranty is true) -->
+        <b-row
+          class="mb-3"
+          v-if="
+            (assetInfo.hasWarranty === 'true' ||
+              assetInfo.hasWarranty === true) &&
+            assetInfo.dateAcquired
+          "
+        >
+          <b-col md="6">
+            <b-form-group label-size="sm" label="Warranty Period (Years)">
+              <b-form-input
+                type="number"
+                v-model.number="assetInfo.warrantyPeriod"
+                placeholder="Enter warranty period in years"
+                min="0"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label-size="sm" label="Date Expired">
+              <b-form-input
+                type="date"
+                v-model="calculatedDateExpired"
+                disabled
+              ></b-form-input>
+            </b-form-group>
           </b-col>
         </b-row>
 
@@ -1080,11 +1111,42 @@
                 name="has-warranty"
                 value="true"
                 unchecked-value="false"
+                :disabled="!assetInfo.dateAcquired"
                 class="ml-3 mb-0"
               >
                 Has Warranty
               </b-form-checkbox>
             </div>
+          </b-col>
+        </b-row>
+
+        <!-- Warranty Period and Date Expired Fields (only show when hasWarranty is true) -->
+        <b-row
+          class="mb-3"
+          v-if="
+            (assetInfo.hasWarranty === 'true' ||
+              assetInfo.hasWarranty === true) &&
+            assetInfo.dateAcquired
+          "
+        >
+          <b-col md="6">
+            <b-form-group label-size="sm" label="Warranty Period (Years)">
+              <b-form-input
+                type="number"
+                v-model.number="assetInfo.warrantyPeriod"
+                placeholder="Enter warranty period in years"
+                min="0"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label-size="sm" label="Date Expired">
+              <b-form-input
+                type="date"
+                v-model="calculatedDateExpired"
+                disabled
+              ></b-form-input>
+            </b-form-group>
           </b-col>
         </b-row>
 
@@ -1347,6 +1409,29 @@
           <span class="breadcrumb-current">Assets</span>
         </nav>
         <b-card class="cardProfile mainContent">
+          <!-- Tab Navigation -->
+          <b-row class="mb-3">
+            <b-col cols="12">
+              <div class="asset-tabs">
+                <button
+                  :class="['tab-button', { active: activeTab === 'all' }]"
+                  @click="activeTab = 'all'"
+                >
+                  All Assets
+                </button>
+                <button
+                  :class="[
+                    'tab-button',
+                    { active: activeTab === 'new-pending' },
+                  ]"
+                  @click="activeTab = 'new-pending'"
+                >
+                  New and Pending
+                </button>
+              </div>
+            </b-col>
+          </b-row>
+
           <b-row>
             <b-col cols="12">
               <b-row class="align-items-center">
@@ -1609,6 +1694,7 @@ export default {
       statusFilter: null,
       accountFilter: null,
       departmentFilter: null,
+      activeTab: "all", // Track which tab is selected: 'all' or 'new-pending'
       selectedItems: [],
       selectAll: false,
       statusOptions: [],
@@ -1678,6 +1764,8 @@ export default {
         cost: null,
         noWarranty: "false",
         hasWarranty: "false",
+        warrantyPeriod: null,
+        dateExpired: "",
         removeAssignment: false,
         accountableEmployee: "",
         accountableEmployeeID: "",
@@ -1781,9 +1869,18 @@ export default {
     filteredItems() {
       let items = this.assetList;
 
-      // Apply search filter first
-      if (this.searchQuery) {
-        const searchLower = this.searchQuery.toLowerCase();
+      // Apply tab filter first
+      if (this.activeTab === "new-pending") {
+        items = items.filter(
+          (item) =>
+            item.Status?.toLowerCase() === "new" ||
+            item.Status?.toLowerCase() === "pending"
+        );
+      }
+
+      // Apply search filter
+      if (this.filter) {
+        const searchLower = this.filter.toLowerCase();
         items = items.filter((item) => {
           return (
             item.Description?.toLowerCase().includes(searchLower) ||
@@ -1858,6 +1955,33 @@ export default {
       },
       set(value) {
         this.assetInfo.actualUser = value;
+      },
+    },
+    calculatedDateExpired: {
+      get() {
+        if (
+          !this.assetInfo.dateAcquired ||
+          !this.assetInfo.warrantyPeriod ||
+          this.assetInfo.warrantyPeriod <= 0
+        ) {
+          return "";
+        }
+
+        const acquiredDate = new Date(this.assetInfo.dateAcquired);
+        const expiredDate = new Date(
+          acquiredDate.getFullYear() + this.assetInfo.warrantyPeriod,
+          acquiredDate.getMonth(),
+          acquiredDate.getDate()
+        );
+
+        // Format as YYYY-MM-DD for input[type="date"]
+        const year = expiredDate.getFullYear();
+        const month = String(expiredDate.getMonth() + 1).padStart(2, "0");
+        const day = String(expiredDate.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      },
+      set(value) {
+        this.assetInfo.dateExpired = value;
       },
     },
   },
@@ -2786,6 +2910,9 @@ export default {
           Remarks: this.assetInfo.remarks,
           assetTag: this.assetInfo.assetTag,
           CreatedBy: localStorage.id,
+          HasWarranty: this.assetInfo.hasWarranty === 'true' ? true : false,
+          WarrantyPeriod: this.assetInfo.warrantyPeriod || null,
+          DateExpired: this.assetInfo.warrantyPeriod && this.assetInfo.dateAcquired ? this.calculatedDateExpired : null,
         };
         const res = await this.$axios.post(
           `${this.$axios.defaults.baseURL}/items/insert`,
@@ -2836,6 +2963,9 @@ export default {
             Remarks: this.assetInfo.remarks,
             assetTag: this.assetInfo.assetTag,
             UpdatedBy: localStorage.id,
+            HasWarranty: this.assetInfo.hasWarranty === 'true' ? true : false,
+            WarrantyPeriod: this.assetInfo.warrantyPeriod || null,
+            DateExpired: this.assetInfo.warrantyPeriod && this.assetInfo.dateAcquired ? this.calculatedDateExpired : null,
           };
           await this.$axios.put(
             `${this.$axios.defaults.baseURL}/items/update/${this.assetInfo.itemHdrId}`,
@@ -2970,5 +3100,35 @@ export default {
   padding: 6px 12px;
   border-radius: 20px;
   font-weight: 500;
+}
+
+/* Asset Tabs Styles */
+.asset-tabs {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c757d;
+  transition: all 0.3s ease;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  color: #008ed8;
+}
+
+.tab-button.active {
+  color: #008ed8;
+  border-bottom-color: #008ed8;
 }
 </style>

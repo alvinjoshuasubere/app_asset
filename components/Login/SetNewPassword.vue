@@ -1,72 +1,73 @@
 <template>
-  <div class="loginContainer">
-    <!-- LOADER -->
-    <div class="loginForm">
-      <img class="logo" src="/city_logo.png" />
+  <div class="login-page">
+    <div class="login-bg"></div>
+    <div class="login-overlay"></div>
 
-      <div class="appName">AIMS</div>
+    <transition name="toast">
+      <div v-if="alert.showAlert" class="login-toast" :class="'toast-' + alert.variant">
+        <div class="toast-icon">
+          <font-awesome-icon v-if="alert.variant == 'success'" icon="circle-check" />
+          <font-awesome-icon v-else-if="alert.variant == 'danger'" icon="circle-exclamation" />
+          <font-awesome-icon v-else icon="info-circle" />
+        </div>
+        <span class="toast-msg">{{ alert.message }}</span>
+        <button class="toast-close" @click="alert.showAlert = false">&times;</button>
+      </div>
+    </transition>
 
-      <div class="subName">Asset and Inventory Management System</div>
-      <br>
-      <div class="pageName">SET NEW PASSWORD</div>
-      <div class="userName" v-if="user.username">Username: <b> {{ String(user.username) }}</b></div>
+    <div class="login-card">
+      <div class="login-card-inner">
+        <div class="login-header">
+          <img class="login-logo" src="/city_logo.png" alt="logo" />
+          <h1 class="login-title">AIMS</h1>
+          <p class="login-subtitle">Set New Password</p>
+        </div>
 
-      <div>
-        <div>
-          <div class="passCons">
+        <div class="login-body">
+          <div class="welcome-user" v-if="user.username">
+            <font-awesome-icon icon="user-circle" class="user-icon" />
+            <span>{{ String(user.username) }}</span>
+          </div>
+
+          <div class="input-group-custom">
+            <font-awesome-icon icon="key" class="input-icon" />
             <input
               :type="inpTypeNew"
-              class="loginFields pass"
-              placeholder="Enter new password"
+              class="login-input"
+              placeholder="New password"
               v-model="user.new_password"
               @keyup.enter="setPassword"
             />
-            <div class="eye">
-              <font-awesome-icon @click="showNew()" :icon="icnNew">
-              </font-awesome-icon>
-            </div>
+            <button class="eye-btn" @click="showNew()" type="button" tabindex="-1">
+              <font-awesome-icon :icon="icnNew" />
+            </button>
           </div>
-          <div class="rePassCons">
+
+          <div class="input-group-custom">
+            <font-awesome-icon icon="key" class="input-icon" />
             <input
               :type="inpTypeRe"
-              class="loginFields pass"
+              class="login-input"
               placeholder="Confirm new password"
               v-model="user.repassword"
               @keyup.enter="setPassword"
             />
-            <div class="eye">
-              <font-awesome-icon @click="showRe()" :icon="icnRe">
-              </font-awesome-icon>
-            </div>
+            <button class="eye-btn" @click="showRe()" type="button" tabindex="-1">
+              <font-awesome-icon :icon="icnRe" />
+            </button>
           </div>
 
-          <button class="mt-2 loginButton loginBX" @click="setPassword">
-            <span class="buttonName">Set Password</span>
+          <button class="login-btn" @click="setPassword">
+            <span>Set Password</span>
+            <font-awesome-icon icon="check" class="btn-arrow" />
           </button>
-          <br />
-          <!-- <small style="color: #20525c; font-size: 12px"
-            ><em>Please enter desired password</em></small
-          > -->
-          <br />
-          <div class="sysLabel">
-            &copy;{{ year }} City Government of Koronadal
-          </div>
+        </div>
+
+        <div class="login-footer">
+          <p class="copyright">&copy;{{ year }} City Government of Koronadal</p>
         </div>
       </div>
     </div>
-    
-    <b-alert
-      :show="alert.showAlert"
-      dismissible
-      :variant="alert.variant"
-      @dismissed="alert.showAlert = null"
-    >
-      <font-awesome-icon
-        :icon="alert.variant == 'success' ? 'circle-check' : 'circle-exclamation'"
-        class="mr-1 alert-font"
-      />
-      {{ alert.message }}
-    </b-alert>
   </div>
 </template>
 
@@ -77,7 +78,6 @@ export default {
     return {
       passNew: false,
       passRe: false,
-      loader: false,
       icnNew: "eye-slash",
       icnRe: "eye-slash",
       inpTypeNew: "password",
@@ -88,95 +88,93 @@ export default {
         repassword: "",
       },
       alert: {
-        showAlert: 0,
+        showAlert: false,
         variant: "",
         message: "",
+        timer: null,
       },
     };
   },
 
   created() {
-    const username = localStorage.user;
+    let username = localStorage.user;
     if (username) {
+      try {
+        username = JSON.parse(username);
+      } catch (e) {
+        // Already a plain string
+      }
       this.user.username = username;
     }
   },
-  
+
   computed: {
     year() {
       return new Date().getFullYear();
     },
   },
-  
+
   methods: {
     showAlert(message, variant) {
-      this.alert = { showAlert: 3, variant, message };
+      if (this.alert.timer) clearTimeout(this.alert.timer);
+      this.alert = { showAlert: true, variant, message, timer: null };
+      this.alert.timer = setTimeout(() => {
+        this.alert.showAlert = false;
+      }, 3500);
     },
-    
+
     showNew() {
       this.passNew = !this.passNew;
-      if (this.passNew == true) {
-        this.icnNew = "eye";
-        this.inpTypeNew = "text";
-      } else {
-        this.icnNew = "eye-slash";
-        this.inpTypeNew = "password";
-      }
+      this.icnNew = this.passNew ? "eye" : "eye-slash";
+      this.inpTypeNew = this.passNew ? "text" : "password";
     },
-    
+
     showRe() {
       this.passRe = !this.passRe;
-      if (this.passRe == true) {
-        this.icnRe = "eye";
-        this.inpTypeRe = "text";
-      } else {
-        this.icnRe = "eye-slash";
-        this.inpTypeRe = "password";
-      }
+      this.icnRe = this.passRe ? "eye" : "eye-slash";
+      this.inpTypeRe = this.passRe ? "text" : "password";
     },
-    
+
     async setPassword() {
-      // Validation
       if (!this.user.new_password || !this.user.repassword) {
         this.showAlert("Please fill in all password fields", "danger");
         return;
       }
-      
+
       if (this.user.new_password !== this.user.repassword) {
         this.showAlert("Passwords do not match", "danger");
         return;
       }
-      
+
       try {
         const res = await axios({
           method: "PUT",
           url: `${this.$axios.defaults.baseURL}/admin/user-accounts/reset-password/${localStorage.id}`,
           data: {
             repassword: this.user.repassword,
-            password: this.user.new_password
+            password: this.user.new_password,
           },
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         });
-        
-        // Check if user needs to be redirected to First_Login
+
         if (res.data.isToReset == true) {
           localStorage.id = res.data.id;
           this.$router.push(`/First_Login`);
           return;
         }
-        
-        // Show success message
-        this.showAlert("Password set successfully! Redirecting to login...", "success");
-        
+
+        this.showAlert(
+          "Password set successfully! Redirecting to login...",
+          "success"
+        );
+
         localStorage.clear();
-        
-        // Redirect to login page after 2 seconds
+
         setTimeout(() => {
-          this.$router.push('/');
+          this.$router.push("/");
         }, 2000);
-        
       } catch (error) {
         this.showAlert("Failed to set password. Please try again.", "danger");
       }
@@ -186,60 +184,383 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.userName {
-  font-size: smaller;
-  font-weight: normal;
-  color: #666;
-  margin-top: -30px;
-  margin-bottom: 20px;
-}
-$colReject: #e84d2e;
-$colPos2: #00a651;
+// ─── Variables ───────────────────────────────────────────
+$primary: #0b345f;
+$primary-light: #1a5276;
+$text-light: rgba(255, 255, 255, 0.85);
+$text-muted: rgba(255, 255, 255, 0.55);
+$card-bg: rgba(255, 255, 255, 0.08);
+$card-border: rgba(255, 255, 255, 0.12);
+$input-bg: rgba(255, 255, 255, 0.07);
+$input-border: rgba(255, 255, 255, 0.15);
+$input-focus-border: rgba(255, 255, 255, 0.5);
+$shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 
-.logo {
-  height: auto;
-  width: 80px;
+// ─── Page Container ──────────────────────────────────────
+.login-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #0a0f1a;
 }
 
-.alert {
+// ─── Background ──────────────────────────────────────────
+.login-bg {
+  position: absolute;
+  inset: 0;
+  background: url("/cityhall.jpeg") center center / cover no-repeat;
+  filter: blur(4px) brightness(0.4);
+  transform: scale(1.05);
+}
+
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(11, 52, 95, 0.6) 0%,
+    rgba(10, 15, 26, 0.8) 100%
+  );
+}
+
+// ─── Toast Alert ─────────────────────────────────────────
+.login-toast {
   position: fixed;
-  bottom: 5%;
-  right: 5%;
+  top: 24px;
+  right: 24px;
   z-index: 10000;
-  animation: fadein 0.4s;
-}
-
-.alert svg path {
-  color: white;
-}
-
-.alert-danger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 320px;
+  max-width: 440px;
+  padding: 14px 16px 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  font-family: font_R, sans-serif;
+  font-size: 14px;
   color: #fff;
-  background-color: $colReject;
-  border-color: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  &.toast-success {
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.92), rgba(16, 185, 129, 0.92));
+  }
+
+  &.toast-danger {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.92), rgba(239, 68, 68, 0.92));
+  }
+
+  &.toast-warning {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.92), rgba(245, 158, 11, 0.92));
+  }
 }
 
-.alert-success {
-  color: white;
-  background-color: $colPos2;
-  border-color: transparent;
+.toast-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  opacity: 0.9;
 }
 
-@keyframes fadein {
+.toast-msg {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast-close {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+}
+
+// ─── Toast Transition ────────────────────────────────────
+.toast-enter-active {
+  animation: toastIn 0.35s ease-out;
+}
+
+.toast-leave-active {
+  animation: toastOut 0.25s ease-in forwards;
+}
+
+@keyframes toastIn {
   0% {
-    opacity: 0%;
-    bottom: 1%;
-    right: 5%;
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
   }
-
-  50% {
-    opacity: 50%;
-  }
-
   100% {
-    opacity: 1000%;
-    bottom: 5%;
-    right: 5%;
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
+  }
+}
+
+// ─── Login Card ──────────────────────────────────────────
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 420px;
+  max-width: 92vw;
+  background: $card-bg;
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid $card-border;
+  border-radius: 24px;
+  box-shadow: $shadow;
+  animation: fadeUp 0.6s ease-out;
+}
+
+.login-card-inner {
+  padding: 48px 40px 32px;
+}
+
+// ─── Header ──────────────────────────────────────────────
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  width: 72px;
+  height: auto;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.login-title {
+  font-family: font_B, sans-serif;
+  font-size: 36px;
+  color: #fff;
+  margin: 0 0 4px;
+  letter-spacing: 2px;
+}
+
+.login-subtitle {
+  font-family: font_R, sans-serif;
+  font-size: 13px;
+  color: $text-muted;
+  margin: 0;
+}
+
+// ─── Welcome User ────────────────────────────────────────
+.welcome-user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: font_R, sans-serif;
+  font-size: 14px;
+  color: $text-light;
+  margin-bottom: 4px;
+
+  .user-icon {
+    font-size: 18px;
+    color: $text-muted;
+  }
+}
+
+// ─── Body ────────────────────────────────────────────────
+.login-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ─── Input Groups ────────────────────────────────────────
+.input-group-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: $input-bg;
+  border: 1px solid $input-border;
+  border-radius: 14px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+
+  &:focus-within {
+    border-color: $input-focus-border;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+  }
+}
+
+.input-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-left: 16px;
+  color: $text-muted;
+  font-size: 14px;
+  transition: color 0.25s ease;
+}
+
+.input-group-custom:focus-within .input-icon {
+  color: $text-light;
+}
+
+.login-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 14px 12px;
+  font-family: font_P, sans-serif;
+  font-size: 14px;
+  color: #fff;
+  min-width: 0;
+
+  &::placeholder {
+    color: $text-muted;
+    font-size: 13px;
+  }
+
+  &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 100px rgba(255, 255, 255, 0.05) inset;
+    -webkit-text-fill-color: #fff;
+    border-radius: 14px;
+  }
+}
+
+// ─── Eye Toggle ──────────────────────────────────────────
+.eye-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  margin-right: 4px;
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease;
+  padding: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: $text-light;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $input-focus-border;
+    outline-offset: 2px;
+  }
+}
+
+// ─── Login Button ────────────────────────────────────────
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 24px;
+  margin-top: 4px;
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: font_M, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+  letter-spacing: 0.5px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(11, 52, 95, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .btn-arrow {
+    font-size: 13px;
+    transition: transform 0.25s ease;
+  }
+
+  &:hover .btn-arrow {
+    transform: translateX(4px);
+  }
+}
+
+// ─── Footer ──────────────────────────────────────────────
+.login-footer {
+  text-align: center;
+  margin-top: 28px;
+}
+
+.copyright {
+  font-family: font_R, sans-serif;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0;
+}
+
+// ─── Animations ──────────────────────────────────────────
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+
+// ─── Responsive ──────────────────────────────────────────
+@media (max-width: 480px) {
+  .login-card-inner {
+    padding: 36px 24px 24px;
+  }
+
+  .login-title {
+    font-size: 28px;
+  }
+
+  .login-logo {
+    width: 56px;
   }
 }
 </style>

@@ -12,7 +12,7 @@ export default {
   },
   middleware: "pageValidator",
   meta: {
-    access: { right: "View Assets" }
+    access: { right: "View Assets" },
   },
   head() {
     return {

@@ -993,7 +993,6 @@
           <b-col md="6">
             <b-form-group label-size="sm" label="Asset Category">
               <v-select
-                disabled
                 v-model="assetInfo.assetCategory"
                 :options="assetCategoryOptions"
                 placeholder="- Select Category -"
@@ -1013,7 +1012,6 @@
           <b-col md="6">
             <b-form-group label-size="sm" label="Asset Subcategory">
               <v-select
-                disabled
                 v-model="assetInfo.assetSubcategory"
                 :options="assetSubcategoryOptions"
                 placeholder="- Select Subcategory -"
@@ -1289,6 +1287,73 @@
     </b-modal>
     <!-- End Edit Modal -->
 
+    <!-- Batch Tag Generation Modal -->
+    <b-modal
+      no-close-on-backdrop
+      header-class="assetColor"
+      id="bv-modal-batch-tags"
+      size="md"
+      title="Batch Tag Generation"
+    >
+      <template #modal-title>
+        <div class="modal-title-header">
+          <div class="modal-title-icon">
+            <font-awesome-icon icon="qrcode" />
+          </div>
+          <div class="modal-title-text">
+            <span class="modal-title-main">Generate Batch Tags</span>
+            <span class="modal-title-desc"
+              >Create multiple property tags at once</span
+            >
+          </div>
+        </div>
+      </template>
+      <b-container fluid>
+        <b-row>
+          <b-col cols="12">
+            <b-form-group label-size="sm" label="Select Prefix">
+              <v-select
+                v-model="batchGen.prefix"
+                :options="batchGen.prefixOptions"
+                placeholder="- Select Type -"
+                :reduce="(option) => option.value"
+                label="text"
+              />
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label-size="sm" label="Start Number">
+              <b-form-input type="number" v-model.number="batchGen.start" />
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label-size="sm" label="End Number">
+              <b-form-input type="number" v-model.number="batchGen.end" />
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </b-container>
+      <template v-slot:modal-footer>
+        <div>
+          <b-button
+            size="sm"
+            class="greyBtn mr-2"
+            @click="$bvModal.hide('bv-modal-batch-tags')"
+          >
+            Cancel
+          </b-button>
+          <b-button
+            size="sm"
+            class="primaryBtn"
+            @click="generateBatchTags"
+            :disabled="!batchGen.prefix || batchGen.start > batchGen.end"
+          >
+            Generate Tags
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
+
     <!-- ============================================================ -->
     <!-- View Other Details Modal                                     -->
     <!-- ============================================================ -->
@@ -1426,7 +1491,7 @@
                   ]"
                   @click="activeTab = 'new-pending'"
                 >
-                  New and Pending
+                  Incoming Assets
                 </button>
               </div>
             </b-col>
@@ -1537,6 +1602,13 @@
                   Generate QR Codes ({{ selectedItems.length }})
                 </b-button>
               </div>
+              <b-button
+                @click="$bvModal.show('bv-modal-batch-tags')"
+                variant="secondary"
+                size="sm"
+              >
+                Generate QR batch
+              </b-button>
             </b-col>
           </b-row>
 
@@ -1845,6 +1917,22 @@ export default {
         serialNumber: "",
         model: "",
       },
+      batchGen: {
+        prefix: null,
+        start: 1,
+        end: 200,
+        prefixOptions: [
+          { text: "CPU (KC)", value: "KC" },
+          { text: "MONITOR (KM)", value: "KM" },
+          { text: "PRINTER (KP)", value: "KP" },
+          { text: "SCANNER (KS)", value: "KS" },
+          { text: "BARCODE READER (KB)", value: "KB" },
+          { text: "LAPTOP (KL)", value: "KL" },
+          { text: "SERVER (KSRV)", value: "KSRV" },
+          { text: "SWITCH (KSW)", value: "KSW" },
+          { text: "ACCESS POINT (KAP)", value: "KAP" },
+        ],
+      },
       existingDetails: null,
       forUpdate: null,
       supplierOptions: [],
@@ -2058,42 +2146,42 @@ export default {
     },
     "assetInfo.assetSubcategory"(newValue) {
       if (newValue) {
-        this.generateAssetTag();
+        // this.generateAssetTag();
       }
     },
   },
 
   methods: {
-    generateAssetTag() {
-      const subcategoryPrefixMap = {
-        CPU: "KC",
-        MONITOR: "KM",
-        PRINTER: "KP",
-        SCANNER: "KS",
-        "BARCODE READER": "KB",
-        LAPTOP: "KL",
-        SERVER: "KSRV",
-        SWITCH: "KSW",
-        "ACCESS POINT": "KAP",
-      };
+    // generateAssetTag() {
+    //   const subcategoryPrefixMap = {
+    //     CPU: "KC",
+    //     MONITOR: "KM",
+    //     PRINTER: "KP",
+    //     SCANNER: "KS",
+    //     "BARCODE READER": "KB",
+    //     LAPTOP: "KL",
+    //     SERVER: "KSRV",
+    //     SWITCH: "KSW",
+    //     "ACCESS POINT": "KAP",
+    //   };
 
-      // Get the subcategory text from the selected option
-      const subcategoryText =
-        typeof this.assetInfo.assetSubcategory === "object"
-          ? this.assetInfo.assetSubcategory.text
-          : this.getSubcategoryText(this.assetInfo.assetSubcategory);
+    //   // Get the subcategory text from the selected option
+    //   const subcategoryText =
+    //     typeof this.assetInfo.assetSubcategory === "object"
+    //       ? this.assetInfo.assetSubcategory.text
+    //       : this.getSubcategoryText(this.assetInfo.assetSubcategory);
 
-      const prefix = subcategoryPrefixMap[subcategoryText?.toUpperCase()];
+    //   const prefix = subcategoryPrefixMap[subcategoryText?.toUpperCase()];
 
-      if (prefix) {
-        // Auto-generate tag with prefix and sequential number
-        const nextNumber = this.getNextAssetNumber(prefix);
-        this.assetInfo.assetTag = `${prefix}-${nextNumber
-          .toString()
-          .padStart(4, "0")}`;
-      }
-      // If no prefix match, leave assetTag empty for manual entry
-    },
+    //   if (prefix) {
+    //     // Auto-generate tag with prefix and sequential number
+    //     const nextNumber = this.getNextAssetNumber(prefix);
+    //     this.assetInfo.assetTag = `${prefix}-${nextNumber
+    //       .toString()
+    //       .padStart(4, "0")}`;
+    //   }
+    //   // If no prefix match, leave assetTag empty for manual entry
+    // },
 
     getSubcategoryText(subcategoryId) {
       const subcategory = this.assetSubcategoryOptions.find(
@@ -2443,20 +2531,20 @@ export default {
       };
 
       await this.getCategories();
-      const categoryOption = this.assetCategoryOptions.find(
-        (option) => option.value === row.item.RefCategoryId
-      );
-      this.assetInfo.assetCategory = categoryOption || null;
+      this.assetInfo.assetCategory =
+        this.assetCategoryOptions.find(
+          (option) => option.value === row.item.RefCategoryId
+        ) || null;
 
       await this.getSubcategories(row.item.RefCategoryId);
-      const subcategoryOption = this.assetSubcategoryOptions.find(
-        (option) => option.value === row.item.SubcategoryId
-      );
-      this.assetInfo.assetSubcategory = subcategoryOption || null;
+      this.assetInfo.assetSubcategory =
+        this.assetSubcategoryOptions.find(
+          (option) => option.value === row.item.SubcategoryId
+        ) || null;
 
       // Generate formatted asset tag for Other Details if subcategory matches
       if (this.assetInfo.assetSubcategory && !row.item.AssetTag) {
-        this.generateAssetTag();
+        // this.generateAssetTag();
         // Update additionalDetails with the generated tag
         this.additionalDetails.assetTag = this.assetInfo.assetTag;
       }
@@ -2826,6 +2914,38 @@ export default {
       </style></head><body>${qrCodesHtml}</body></html>`;
     },
 
+    async generateBatchTags() {
+      const { prefix, start, end } = this.batchGen;
+      const qrPromises = [];
+
+      for (let i = start; i <= end; i++) {
+        const assetTag = `${prefix}-${i.toString().padStart(4, "0")}`;
+        qrPromises.push(
+          QRCode.toDataURL(assetTag, {
+            width: 200,
+            margin: 1,
+            color: { dark: "#000000", light: "#FFFFFF" },
+          }).then((url) => ({ assetTag, url }))
+        );
+      }
+
+      try {
+        const results = await Promise.all(qrPromises);
+        const printContent = this.generateMultiplePrintContent(results);
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.onload = function () {
+          printWindow.print();
+          printWindow.close();
+        };
+        this.$bvModal.hide("bv-modal-batch-tags");
+      } catch (error) {
+        console.error("Error generating batch tags:", error);
+        this.showAlert("Failed to generate batch tags", "danger");
+      }
+    },
+
     // ── Misc ──────────────────────────────────────────────────────────────
     viewMaintenance(row) {
       try {
@@ -2910,9 +3030,12 @@ export default {
           Remarks: this.assetInfo.remarks,
           assetTag: this.assetInfo.assetTag,
           CreatedBy: localStorage.id,
-          HasWarranty: this.assetInfo.hasWarranty === 'true' ? true : false,
+          HasWarranty: this.assetInfo.hasWarranty === "true" ? true : false,
           WarrantyPeriod: this.assetInfo.warrantyPeriod || null,
-          DateExpired: this.assetInfo.warrantyPeriod && this.assetInfo.dateAcquired ? this.calculatedDateExpired : null,
+          DateExpired:
+            this.assetInfo.warrantyPeriod && this.assetInfo.dateAcquired
+              ? this.calculatedDateExpired
+              : null,
         };
         const res = await this.$axios.post(
           `${this.$axios.defaults.baseURL}/items/insert`,
@@ -2963,9 +3086,12 @@ export default {
             Remarks: this.assetInfo.remarks,
             assetTag: this.assetInfo.assetTag,
             UpdatedBy: localStorage.id,
-            HasWarranty: this.assetInfo.hasWarranty === 'true' ? true : false,
+            HasWarranty: this.assetInfo.hasWarranty === "true" ? true : false,
             WarrantyPeriod: this.assetInfo.warrantyPeriod || null,
-            DateExpired: this.assetInfo.warrantyPeriod && this.assetInfo.dateAcquired ? this.calculatedDateExpired : null,
+            DateExpired:
+              this.assetInfo.warrantyPeriod && this.assetInfo.dateAcquired
+                ? this.calculatedDateExpired
+                : null,
           };
           await this.$axios.put(
             `${this.$axios.defaults.baseURL}/items/update/${this.assetInfo.itemHdrId}`,

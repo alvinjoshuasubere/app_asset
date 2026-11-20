@@ -1585,22 +1585,43 @@
               class="d-flex justify-content-between align-items-center"
             >
               <div class="d-flex align-items-center">
-                <b-form-checkbox
-                  v-model="selectAll"
-                  @change="toggleSelectAll"
-                  class="mr-3"
-                >
-                  <small>Select All</small>
-                </b-form-checkbox>
-                <b-button
-                  v-if="selectedItems.length > 0"
-                  variant="primary"
-                  size="sm"
-                  @click="generateMultipleQRCodes"
-                >
-                  <font-awesome-icon icon="qrcode" class="mr-2" />
-                  Generate QR Codes ({{ selectedItems.length }})
-                </b-button>
+                <template v-if="activeTab === 'new-pending'">
+                  <b-form-checkbox
+                    v-model="selectAll"
+                    @change="toggleSelectAll"
+                    class="mr-3"
+                  >
+                    <small>Select All</small>
+                  </b-form-checkbox>
+                  <b-button
+                    v-if="selectedItems.length > 0"
+                    variant="success"
+                    size="sm"
+                    :disabled="isTransferring"
+                    @click="transferSelectedIncoming"
+                  >
+                    <font-awesome-icon icon="arrow-right" class="mr-2" />
+                    {{ isTransferring ? "Transferring..." : `Transfer Selected to Assets (${selectedItems.length})` }}
+                  </b-button>
+                </template>
+                <template v-else>
+                  <b-form-checkbox
+                    v-model="selectAll"
+                    @change="toggleSelectAll"
+                    class="mr-3"
+                  >
+                    <small>Select All</small>
+                  </b-form-checkbox>
+                  <b-button
+                    v-if="selectedItems.length > 0"
+                    variant="primary"
+                    size="sm"
+                    @click="generateMultipleQRCodes"
+                  >
+                    <font-awesome-icon icon="qrcode" class="mr-2" />
+                    Generate QR Codes ({{ selectedItems.length }})
+                  </b-button>
+                </template>
               </div>
               <b-button
                 @click="$bvModal.show('bv-modal-batch-tags')"
@@ -1628,7 +1649,7 @@
             selectable
             select-mode="multi"
             :items="paginatedItems"
-            :fields="fields"
+            :fields="tableFields"
             :sort-by.sync="sortBy"
             :sort-desc.sync="sortDesc"
             :sort-direction="sortDirection"
@@ -1637,7 +1658,7 @@
           >
             <template v-slot:cell(selected)="row">
               <b-form-checkbox
-                v-if="row.item.AssetTag"
+                v-if="activeTab === 'new-pending' || row.item.AssetTag"
                 v-model="row.item.selected"
                 @change="toggleSelection(row.item)"
               ></b-form-checkbox>
@@ -1661,11 +1682,18 @@
               <small>{{ row.item.AccountTitle }}</small>
             </template>
             <template v-slot:cell(PropertyNo)="row">
-              <b>{{ row.item.PropertyNo }}</b>
-              <br />
-              <small v-if="row.item.AssetTag"
-                >Asset Tag: {{ row.item.AssetTag }}</small
-              >
+              <template v-if="isIncoming(row.item)">
+                <b>{{ row.item.PrNo }}</b>
+                <br />
+                <small v-if="row.item.PONo">PO: {{ row.item.PONo }}</small>
+              </template>
+              <template v-else>
+                <b>{{ row.item.PropertyNo }}</b>
+                <br />
+                <small v-if="row.item.AssetTag"
+                  >Asset Tag: {{ row.item.AssetTag }}</small
+                >
+              </template>
             </template>
             <template v-slot:cell(IsAssigned)="row">
               <b-form-checkbox
@@ -1683,20 +1711,31 @@
                 <b-dropdown-header class="dropdown-header"
                   >Actions</b-dropdown-header
                 >
-                <b-dropdown-item-button @click="openEditModal(row)">
-                  <font-awesome-icon
-                    icon="pen-to-square"
-                    class="viewIcon mr-2"
-                    small
-                  />View/Edit Asset
-                </b-dropdown-item-button>
-                <b-dropdown-item-button @click="viewMaintenance(row)">
-                  <font-awesome-icon
-                    icon="gear"
-                    class="viewIcon mr-2"
-                    small
-                  />View Maintenance
-                </b-dropdown-item-button>
+                <template v-if="isIncoming(row.item)">
+                  <b-dropdown-item-button @click="encodeIncomingAsset(row.item)">
+                    <font-awesome-icon
+                      icon="circle-plus"
+                      class="viewIcon mr-2"
+                      small
+                    />Encode as Asset
+                  </b-dropdown-item-button>
+                </template>
+                <template v-else>
+                  <b-dropdown-item-button @click="openEditModal(row)">
+                    <font-awesome-icon
+                      icon="pen-to-square"
+                      class="viewIcon mr-2"
+                      small
+                    />View/Edit Asset
+                  </b-dropdown-item-button>
+                  <b-dropdown-item-button @click="viewMaintenance(row)">
+                    <font-awesome-icon
+                      icon="gear"
+                      class="viewIcon mr-2"
+                      small
+                    />View Maintenance
+                  </b-dropdown-item-button>
+                </template>
               </b-dropdown>
             </template>
             <template v-slot:table-caption>
@@ -1759,6 +1798,7 @@ export default {
       currentPage: 1,
       perPage: 10,
       isBusy: false,
+      isTransferring: false,
       sortDesc: false,
       sortDirection: "asc",
       sortBy: "PropertyNo",
@@ -1767,6 +1807,8 @@ export default {
       accountFilter: null,
       departmentFilter: null,
       activeTab: "all", // Track which tab is selected: 'all' or 'new-pending'
+      encodedIncomingIds: [],
+      encodingIncoming: null,
       selectedItems: [],
       selectAll: false,
       statusOptions: [],
@@ -1954,8 +1996,22 @@ export default {
   },
 
   computed: {
+    tableFields() {
+      if (this.activeTab !== "new-pending") return this.fields;
+      return this.fields
+        .filter((field) => field.key !== "IsAssigned")
+        .map((field) =>
+          field.key === "PropertyNo"
+            ? { ...field, label: "PR / PO No." }
+            : field
+        );
+    },
     filteredItems() {
-      let items = this.assetList;
+      let items = this.assetList.filter(
+        (item) =>
+          !item.IncomingAssetId ||
+          !this.encodedIncomingIds.includes(item.IncomingAssetId)
+      );
 
       // Apply tab filter first
       if (this.activeTab === "new-pending") {
@@ -2080,6 +2136,12 @@ export default {
         this.getAllAssets();
       },
       immediate: true,
+    },
+    activeTab() {
+      this.currentPage = 1;
+      this.selectedItems = [];
+      this.selectAll = false;
+      this.getAllAssets();
     },
     statusFilter() {
       this.currentPage = 1;
@@ -2450,16 +2512,30 @@ export default {
         this.isEmployeeBusy = false;
       }
     },
+    isIncoming(item) {
+      return !!item && (!!item.IncomingAssetId || this.activeTab === "new-pending");
+    },
     async getAllAssets() {
       this.isBusy = true;
       this.showLoading = true;
       try {
-        let url = `${this.$axios.defaults.baseURL}/items/get-filter?text=${this.filter}`;
-        if (this.accountFilter) url += `&accountTitle=${this.accountFilter}`;
+        const base = this.$axios.defaults.baseURL;
+        let url;
+        if (this.activeTab === "new-pending") {
+          url = `${base}/items/get-incoming-assets?text=${encodeURIComponent(
+            this.filter || ""
+          )}`;
+        } else {
+          url = `${base}/items/get-filter?text=${encodeURIComponent(
+            this.filter || ""
+          )}`;
+          if (this.accountFilter) url += `&accountTitle=${this.accountFilter}`;
+        }
         const res = await this.$axios.get(url);
         this.assetList = res.data || [];
       } catch (error) {
         console.error("Failed to load Assets", error);
+        this.showAlert("Failed to load Assets", "danger");
       } finally {
         this.isBusy = false;
         this.showLoading = false;
@@ -2468,6 +2544,7 @@ export default {
 
     // ── Row / Modal actions ────────────────────────────────────────────────
     async onRowClicked(item) {
+      if (this.isIncoming(item)) return;
       if (item) {
         try {
           // Fetch detailed item data
@@ -2490,8 +2567,46 @@ export default {
       }
     },
 
+    async encodeIncomingAsset(item) {
+      this.resetAssetForm();
+      this.isEditMode = false;
+      this.encodingIncoming = item || null;
+
+      const matchedUnit = this.unitOptions.find(
+        (option) =>
+          String(option.text).toLowerCase() === String(item.Unit || "").toLowerCase()
+      );
+
+      this.assetInfo = {
+        ...this.assetInfo,
+        assetAccount: item.RefAccountId || null,
+        assetDepartment: item.FuncPerOfficeId
+          ? String(item.FuncPerOfficeId)
+          : null,
+        itemDescription: item.Description || "",
+        cost: item.UnitCost !== null && item.UnitCost !== undefined
+          ? this.formatCurrency(item.UnitCost)
+          : null,
+        unit: matchedUnit ? matchedUnit.value : null,
+        remarks: `PR: ${item.PrNo || ""}${item.PONo ? ` | PO: ${item.PONo}` : ""}`,
+      };
+
+      await this.getCategories();
+      this.assetInfo.assetCategory =
+        this.assetCategoryOptions.find(
+          (option) => option.text === item.Category
+        ) || null;
+      await this.getSubcategories(this.assetInfo.assetCategory?.value || null);
+
+      this.$bvModal.show("bv-modal-add-asset");
+    },
+
     // ── FIX: Load categories then subcategories sequentially ──────────────
     async openEditModal(row) {
+      if (!row.item.ItemHdrId) {
+        this.showAlert("This incoming asset has no encoded record yet.", "warning");
+        return;
+      }
       this.isEditMode = true;
       console.log(row);
 
@@ -2611,6 +2726,7 @@ export default {
               Reason: "",
               AssetTag: this.additionalDetails.assetTag || "",
               ItemHdrId: this.assetInfo.itemHdrId || "",
+              PrNo: this.encodingIncoming?.PrNo || null,
               user_id: localStorage.id || "",
             },
             headers: {
@@ -2632,6 +2748,7 @@ export default {
               Reason: "",
               AssetTag: this.additionalDetails.assetTag || "",
               ItemHdrId: this.assetInfo.itemHdrId || "",
+              PrNo: this.encodingIncoming?.PrNo || null,
               user_id: localStorage.id || "",
             },
             headers: {
@@ -2641,6 +2758,7 @@ export default {
         }
 
         this.showAlert("Other details saved successfully!", "success");
+        this.encodingIncoming = null;
         await this.getAllAssets();
         this.closeOtherDetailsModal();
       } catch (error) {
@@ -2812,14 +2930,18 @@ export default {
     },
 
     // ── Selection helpers ─────────────────────────────────────────────────
+    getSelectionId(item) {
+      return item.IncomingAssetId || item.AssetTag || item.ItemHdrId;
+    },
     toggleSelection(item) {
+      const id = this.getSelectionId(item);
       if (item.selected) {
-        if (!this.selectedItems.find((s) => s.AssetTag === item.AssetTag)) {
+        if (!this.selectedItems.find((s) => this.getSelectionId(s) === id)) {
           this.selectedItems.push(item);
         }
       } else {
         this.selectedItems = this.selectedItems.filter(
-          (s) => s.AssetTag !== item.AssetTag
+          (s) => this.getSelectionId(s) !== id
         );
       }
       this.selectAll = this.selectedItems.length === this.paginatedItems.length;
@@ -2829,6 +2951,62 @@ export default {
         item.selected = value;
       });
       this.selectedItems = value ? [...this.paginatedItems] : [];
+    },
+
+    async transferSelectedIncoming() {
+      if (this.selectedItems.length === 0) {
+        this.$bvToast.toast("Please select at least one incoming asset", {
+          title: "Warning",
+          variant: "warning",
+          solid: true,
+        });
+        return;
+      }
+
+      this.isTransferring = true;
+      try {
+        const items = this.selectedItems.map((item) => ({
+          IncomingAssetId: item.IncomingAssetId,
+          PrNo: item.PrNo,
+          PONo: item.PONo,
+          RefAccountId: item.RefAccountId,
+          FuncPerOfficeId: item.FuncPerOfficeId,
+          RefCategoryId: item.RefCategoryId || null,
+          UnitId: item.UnitId || null,
+          Description: item.Description,
+          UnitCost: item.UnitCost,
+          Quantity: item.Quantity || 1,
+          SubcategoryId: item.SubcategoryId || null,
+          StatusId: item.StatusId || 7,
+        }));
+
+        await this.$axios.post(
+          `${this.$axios.defaults.baseURL}/items/transfer-incoming-assets`,
+          {
+            items,
+            CreatedBy: localStorage.id,
+          }
+        );
+
+        this.showAlert(
+          `${items.length} incoming asset(s) transferred to All Assets successfully!`,
+          "success"
+        );
+        this.selectedItems = [];
+        this.selectAll = false;
+        this.paginatedItems.forEach((item) => {
+          item.selected = false;
+        });
+        await this.getAllAssets();
+      } catch (error) {
+        console.error("Failed to transfer incoming assets", error);
+        this.showAlert(
+          error.response?.data?.error || "Failed to transfer incoming assets",
+          "danger"
+        );
+      } finally {
+        this.isTransferring = false;
+      }
     },
 
     // ── QR Code ───────────────────────────────────────────────────────────
@@ -2948,6 +3126,10 @@ export default {
 
     // ── Misc ──────────────────────────────────────────────────────────────
     viewMaintenance(row) {
+      if (!row.item.ItemHdrId) {
+        this.showAlert("This incoming asset has no maintenance record yet.", "warning");
+        return;
+      }
       try {
         this.$router.push(`/assets/${row.item.ItemHdrId}`);
       } catch (e) {
@@ -2996,6 +3178,7 @@ export default {
     cancelAssetDetails() {
       this.resetAssetForm();
       this.isEditMode = false;
+      this.encodingIncoming = null;
       this.$bvModal.hide("bv-modal-add-asset");
       this.$bvModal.hide("bv-modal-edit-asset");
     },
@@ -3028,6 +3211,7 @@ export default {
           IsActive: "1",
           IsDonation: "0",
           Remarks: this.assetInfo.remarks,
+          PoNo: this.encodingIncoming?.PONo || null,
           assetTag: this.assetInfo.assetTag,
           CreatedBy: localStorage.id,
           HasWarranty: this.assetInfo.hasWarranty === "true" ? true : false,
@@ -3132,6 +3316,13 @@ export default {
         } else {
           this.resetAssetForm();
           this.showAlert("Asset saved successfully!", "success");
+        }
+
+        if (this.encodingIncoming) {
+          const incomingId = this.encodingIncoming.IncomingAssetId;
+          if (incomingId && !this.encodedIncomingIds.includes(incomingId)) {
+            this.encodedIncomingIds.push(incomingId);
+          }
         }
       } catch (error) {
         console.error("Failed to save asset changes", error);
